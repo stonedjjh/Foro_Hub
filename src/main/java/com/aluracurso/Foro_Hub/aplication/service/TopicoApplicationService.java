@@ -3,6 +3,7 @@ package com.aluracurso.Foro_Hub.aplication.service;
 import com.aluracurso.Foro_Hub.aplication.dto.DatosTopicoDTO;
 import com.aluracurso.Foro_Hub.domain.topico.entity.Topico;
 import com.aluracurso.Foro_Hub.domain.topico.exception.TopicoDuplicadoException;
+import com.aluracurso.Foro_Hub.domain.topico.exception.TopicoNoEncontradoException;
 import com.aluracurso.Foro_Hub.domain.topico.repository.TopicoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,6 +40,15 @@ public class TopicoApplicationService {
         Page<Topico> topicos = topicoRepository.findAll(paginacion);
         // Convierte la Page de Topico a Page de DatosTopicoDTO
         return convertirDTO(topicos);
+    }
+
+    public DatosTopicoDTO obtenerTopicoPorId(Long id){
+        Optional<Topico> topico= topicoRepository.findById(id);
+        try {
+            return new DatosTopicoDTO(topico.get());
+        } catch (RuntimeException e) {
+            throw new TopicoNoEncontradoException("Tópico con ID " + id + " no encontrado.");
+        }
     }
 
     public Optional<List<DatosTopicoDTO>> obtener10Topicos(){

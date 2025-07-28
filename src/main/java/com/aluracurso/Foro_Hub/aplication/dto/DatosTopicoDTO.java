@@ -5,6 +5,7 @@ import com.aluracurso.Foro_Hub.domain.topico.entity.Topico;
 import java.time.LocalDateTime;
 
 public record DatosTopicoDTO(
+        Long id,
         String titulo,
         String mensaje,
         LocalDateTime fechaCreacion,
@@ -13,9 +14,7 @@ public record DatosTopicoDTO(
         Integer curso
 ) {
     public DatosTopicoDTO(Topico topico) {
-        this(topico.getTitulo(),topico.getMensaje(),topico.getFechaCreacion(),
+        this(topico.getId(), topico.getTitulo(),topico.getMensaje(),topico.getFechaCreacion(),
                 topico.getStatus(),topico.getAutor(),topico.getCurso());
     }
-
-
 }

@@ -53,6 +53,14 @@ public class TopicoController {
         return this.retornarLista(topicoApplicationService.buscarTituloyAnio(titulo,anio));
     }
 
+
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DatosTopicoDTO> buscarTopicoPorId(@PathVariable Long id) {
+        DatosTopicoDTO datosTopicoDTO = topicoApplicationService.obtenerTopicoPorId(id);
+        return ResponseEntity.ok(datosTopicoDTO);
+    }
+
     @PostMapping
     public ResponseEntity<DatosTopicoDTO> agregarNuevoTopico(@Valid @RequestBody TopicoDTO topicoDTO) {
         Topico topico = new Topico(topicoDTO);
