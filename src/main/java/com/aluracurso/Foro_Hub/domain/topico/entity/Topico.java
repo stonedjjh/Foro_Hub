@@ -1,4 +1,4 @@
-package com.aluracurso.Foro_Hub.domain.entity;
+package com.aluracurso.Foro_Hub.domain.topico.entity;
 
 import com.aluracurso.Foro_Hub.aplication.dto.TopicoDTO;
 import jakarta.persistence.*;

@@ -1,13 +1,21 @@
 package com.aluracurso.Foro_Hub.presentation.controller;
 
+import com.aluracurso.Foro_Hub.aplication.dto.DatosTopicoDTO;
 import com.aluracurso.Foro_Hub.aplication.dto.TopicoDTO;
 import com.aluracurso.Foro_Hub.aplication.service.TopicoApplicationService;
-import com.aluracurso.Foro_Hub.domain.entity.Topico;
+import com.aluracurso.Foro_Hub.domain.topico.entity.Topico;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.Optional;
+
+//importaciones necesarias para trabajar con paginación
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 
 @RestController
 @RequestMapping("/topicos")
@@ -16,19 +24,39 @@ public class TopicoController {
     @Autowired
     private TopicoApplicationService topicoApplicationService;
 
-    @GetMapping
-    public String saludos() {
-        return "Hello WebFlux";
+    private List<DatosTopicoDTO>  retornarLista(Optional<List<DatosTopicoDTO>> listaDatosTopicosDTO ){
+        if (listaDatosTopicosDTO.isPresent())
+        {
+            return listaDatosTopicosDTO.get();
+        }
+        return null;
+    }
+
+
+
+    @GetMapping // Este método ahora manejará la paginación
+    public Page<DatosTopicoDTO> listarTopicos(@PageableDefault(size = 10, sort = {"fechaCreacion"}) Pageable paginacion){
+        // Llama al servicio con el objeto Pageable
+        return topicoApplicationService.obtenerTopicos(paginacion);
+    }
+
+    @GetMapping("/primeros10topicos")
+    public List<DatosTopicoDTO> listarPrimeros10topicos(){
+        return this.retornarLista(topicoApplicationService.obtener10Topicos());
+    }
+
+    @GetMapping("/buscar")
+    public List<DatosTopicoDTO>buscarTopicosPorCriterios(
+            @RequestParam String titulo,
+            @RequestParam int anio
+    ) {
+        return this.retornarLista(topicoApplicationService.buscarTituloyAnio(titulo,anio));
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<String> agregarNuevoTopico(@Valid @RequestBody TopicoDTO topicoDTO) {
+    public ResponseEntity<DatosTopicoDTO> agregarNuevoTopico(@Valid @RequestBody TopicoDTO topicoDTO) {
         Topico topico = new Topico(topicoDTO);
-        System.out.println(topico);
-            if(topicoApplicationService.persistirRepositorio(topico))
-                return ResponseEntity.status(HttpStatus.CREATED).body("Tópico Valido");
-            else
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo guardar el tópico");
+        Topico topicoAlmacenado = topicoApplicationService.guararTopico(topico);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new DatosTopicoDTO(topicoAlmacenado));
     }
 }
