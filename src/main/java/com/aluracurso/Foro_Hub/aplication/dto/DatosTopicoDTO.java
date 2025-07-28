@@ -17,4 +17,5 @@ public record DatosTopicoDTO(
         this(topico.getId(), topico.getTitulo(),topico.getMensaje(),topico.getFechaCreacion(),
                 topico.getStatus(),topico.getAutor(),topico.getCurso());
     }
+
 }

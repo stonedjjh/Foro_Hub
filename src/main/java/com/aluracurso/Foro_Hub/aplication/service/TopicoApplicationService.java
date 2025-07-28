@@ -1,6 +1,7 @@
 package com.aluracurso.Foro_Hub.aplication.service;
 
 import com.aluracurso.Foro_Hub.aplication.dto.DatosTopicoDTO;
+import com.aluracurso.Foro_Hub.aplication.dto.TopicoActualizacionDTO;
 import com.aluracurso.Foro_Hub.domain.topico.entity.Topico;
 import com.aluracurso.Foro_Hub.domain.topico.exception.TopicoDuplicadoException;
 import com.aluracurso.Foro_Hub.domain.topico.exception.TopicoNoEncontradoException;
@@ -61,13 +62,36 @@ public class TopicoApplicationService {
     }
 
     @Transactional
-    public Topico guararTopico(Topico topico) throws TopicoDuplicadoException  {
+    public Topico guardarTopico(Topico topico) throws TopicoDuplicadoException  {
         try {
-            Topico topicoAlmacenado =topicoRepository.save(topico);
-            return topicoAlmacenado;
+            topicoRepository.save(topico);
+            return topico;
         } catch (DataIntegrityViolationException e) {
             throw new TopicoDuplicadoException("El título o mensaje del tópico ya existe.");
         }
+    }
+
+    @Transactional
+    public DatosTopicoDTO actualizarTopico(Long id, TopicoActualizacionDTO topicoActualizacionDTO) throws TopicoDuplicadoException  {
+        Topico topico = topicoRepository.findById(id)
+                .orElseThrow(() -> new TopicoNoEncontradoException("Tópico con ID " + id + " no encontrado."));
+        try {
+                topico.setTitulo(topicoActualizacionDTO.titulo());
+                topico.setMensaje(topicoActualizacionDTO.mensaje());
+                topico.setStatus(topicoActualizacionDTO.status());
+                topico.setcurso(topicoActualizacionDTO.curso());
+                topicoRepository.save(topico);
+        }        catch (DataIntegrityViolationException e) {
+            throw new TopicoDuplicadoException("El título o mensaje del tópico ya existe.");
+        }
+        return new DatosTopicoDTO(topico);
+    }
+
+    @Transactional
+    public void eliminarTopico(Long id){
+        Topico topico = topicoRepository.findById(id)
+                .orElseThrow(() -> new TopicoNoEncontradoException("Tópico con ID " + id + " no encontrado."));
+        topicoRepository.delete(topico);
     }
 
 }

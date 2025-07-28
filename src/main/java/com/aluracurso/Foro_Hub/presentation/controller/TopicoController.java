@@ -1,6 +1,7 @@
 package com.aluracurso.Foro_Hub.presentation.controller;
 
 import com.aluracurso.Foro_Hub.aplication.dto.DatosTopicoDTO;
+import com.aluracurso.Foro_Hub.aplication.dto.TopicoActualizacionDTO;
 import com.aluracurso.Foro_Hub.aplication.dto.TopicoDTO;
 import com.aluracurso.Foro_Hub.aplication.service.TopicoApplicationService;
 import com.aluracurso.Foro_Hub.domain.topico.entity.Topico;
@@ -53,6 +54,17 @@ public class TopicoController {
         return this.retornarLista(topicoApplicationService.buscarTituloyAnio(titulo,anio));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<DatosTopicoDTO> actualizarTopicoPorId(@PathVariable Long id, @Valid @RequestBody TopicoActualizacionDTO topicoActualizacionDTO){
+        DatosTopicoDTO datosTopicoDTO = topicoApplicationService.actualizarTopico(id,topicoActualizacionDTO);
+        return ResponseEntity.ok(datosTopicoDTO);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> elminarTopicoPorId(@PathVariable Long id){
+        topicoApplicationService.eliminarTopico(id);
+        return ResponseEntity.ok("Tópico eliminado");
+    }
 
 
     @GetMapping("/{id}")
@@ -64,7 +76,7 @@ public class TopicoController {
     @PostMapping
     public ResponseEntity<DatosTopicoDTO> agregarNuevoTopico(@Valid @RequestBody TopicoDTO topicoDTO) {
         Topico topico = new Topico(topicoDTO);
-        Topico topicoAlmacenado = topicoApplicationService.guararTopico(topico);
+        Topico topicoAlmacenado = topicoApplicationService.guardarTopico(topico);
         return ResponseEntity.status(HttpStatus.CREATED).body(new DatosTopicoDTO(topicoAlmacenado));
     }
 }
