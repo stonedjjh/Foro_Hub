@@ -79,7 +79,7 @@ public class TopicoApplicationService {
                 topico.setTitulo(topicoActualizacionDTO.titulo());
                 topico.setMensaje(topicoActualizacionDTO.mensaje());
                 topico.setStatus(topicoActualizacionDTO.status());
-                topico.setcurso(topicoActualizacionDTO.curso());
+                topico.setCurso(topicoActualizacionDTO.curso());
                 topicoRepository.save(topico);
         }        catch (DataIntegrityViolationException e) {
             throw new TopicoDuplicadoException("El título o mensaje del tópico ya existe.");

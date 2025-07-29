@@ -67,7 +67,8 @@ public class TopicoController {
     }
 
 
-    @GetMapping("/{id}")
+    @GetMapping("" +
+            "/{id}")
     public ResponseEntity<DatosTopicoDTO> buscarTopicoPorId(@PathVariable Long id) {
         DatosTopicoDTO datosTopicoDTO = topicoApplicationService.obtenerTopicoPorId(id);
         return ResponseEntity.ok(datosTopicoDTO);
