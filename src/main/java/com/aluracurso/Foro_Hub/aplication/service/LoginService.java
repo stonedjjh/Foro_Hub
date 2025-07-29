@@ -1,41 +1,37 @@
 package com.aluracurso.Foro_Hub.aplication.service;
 
-import com.aluracurso.Foro_Hub.aplication.dto.UsuarioDTO;
+
+import com.aluracurso.Foro_Hub.aplication.dto.DatosTokenJWT;
 import com.aluracurso.Foro_Hub.domain.topico.entity.Usuario;
-import com.aluracurso.Foro_Hub.domain.topico.exception.TopicoNoEncontradoException;
-import com.aluracurso.Foro_Hub.domain.topico.exception.UsuarioNoEncontradoException;
 import com.aluracurso.Foro_Hub.domain.topico.repository.UsuarioRepository;
+import com.aluracurso.Foro_Hub.infrastructure.config.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class LoginService {
-    @Autowired
-    private PasswordEncoder passwordEncoder; // BCryptPasswordEncoder es una implementación de PasswordEncoder
+public class LoginService implements UserDetailsService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    public boolean verificarContrasena(String rawPassword, String encodedPassword){
-        return passwordEncoder.matches(rawPassword, encodedPassword);
+    @Autowired
+    private TokenService tokenService;
+
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // Aquí es donde usamos el Optional<Usuario> que debe devolver UsuarioRepository
+        // y lanzamos UsernameNotFoundException si el usuario no se encuentra.
+        // Asume que tu entidad Usuario ya implementa UserDetails.
+        return usuarioRepository.findByCorreoElectronico(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con correo: " + username));
     }
 
-    public String verificarUsuario(UsuarioDTO usuarioDTO) throws UsuarioNoEncontradoException
-    {
-
-        Usuario usuario = usuarioRepository.findByCorreoElectronico(usuarioDTO.correoElectronico())
-                .orElseThrow(() -> new UsuarioNoEncontradoException("Credenciales no coinciden"));
-        System.out.println("Contraseña del DTO (clave): " + usuarioDTO.clave()); // <-- Nueva línea
-        System.out.println("Contraseña recuperada de la BD: " + usuario.getContraseña());
-        System.out.println("Longitud de la contraseña recuperada: " + usuario.getContraseña().length()); // <-- Nueva línea
-
-        if(this.verificarContrasena(usuarioDTO.clave(), usuario.getContraseña())){
-            return "usuario valido";
-        }
-
-        throw new UsuarioNoEncontradoException("Credenciales no coinciden");
-
+    public DatosTokenJWT generarToken(Usuario usuarioAutenticado){
+        // Utiliza el objeto 'usuarioAutenticado' que ya viene verificado
+        var tokenJWT = tokenService.generarToken(usuarioAutenticado);
+        return new DatosTokenJWT(tokenJWT);
     }
-
-
 }
