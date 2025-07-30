@@ -27,6 +27,7 @@ public class SecurityConfigurations {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sin sesiones
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/login").permitAll() // Permitir acceso público a /login
+                        .requestMatchers("/v3/api-docs/**","/swagger-ui.html/**","swagger-ui/**").permitAll()
                         .anyRequest().authenticated() // Todas las demás rutas requieren autenticación
                 )
                 // Aquí irían las configuraciones para JWT o el tipo de autenticación
