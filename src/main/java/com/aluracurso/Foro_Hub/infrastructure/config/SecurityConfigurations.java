@@ -1,5 +1,6 @@
 package com.aluracurso.Foro_Hub.infrastructure.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,11 +11,16 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 //Esto para indicarle que se modificara la configuracion del paquete security
 @EnableWebSecurity
 public class SecurityConfigurations {
+
+    @Autowired
+    private SecurityFilter securityFilter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(csrf -> csrf.disable()) // Deshabilitar CSRF para APIs REST sin estado
@@ -25,8 +31,11 @@ public class SecurityConfigurations {
                 )
                 // Aquí irían las configuraciones para JWT o el tipo de autenticación
                 // .addFilterBefore(tuFiltroDeAutenticacionJWT, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
+
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
