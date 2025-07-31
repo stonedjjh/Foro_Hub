@@ -2,7 +2,7 @@ package com.aluracurso.Foro_Hub.presentation.controller;
 
 import com.aluracurso.Foro_Hub.aplication.dto.UsuarioDTO;
 import com.aluracurso.Foro_Hub.aplication.service.LoginService;
-import com.aluracurso.Foro_Hub.domain.topico.entity.Usuario;
+import com.aluracurso.Foro_Hub.domain.entity.Usuario;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

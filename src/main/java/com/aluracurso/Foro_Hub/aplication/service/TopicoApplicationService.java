@@ -2,12 +2,17 @@ package com.aluracurso.Foro_Hub.aplication.service;
 
 import com.aluracurso.Foro_Hub.aplication.dto.DatosTopicoDTO;
 import com.aluracurso.Foro_Hub.aplication.dto.TopicoActualizacionDTO;
-import com.aluracurso.Foro_Hub.domain.topico.entity.Topico;
-import com.aluracurso.Foro_Hub.domain.topico.exception.TopicoDuplicadoException;
-import com.aluracurso.Foro_Hub.domain.topico.exception.TopicoNoEncontradoException;
-import com.aluracurso.Foro_Hub.domain.topico.repository.TopicoRepository;
+import com.aluracurso.Foro_Hub.aplication.dto.TopicoDTO;
+import com.aluracurso.Foro_Hub.domain.entity.Topico;
+import com.aluracurso.Foro_Hub.domain.entity.Usuario;
+import com.aluracurso.Foro_Hub.domain.exception.CursoNoEncontradoException;
+import com.aluracurso.Foro_Hub.domain.exception.TopicoDuplicadoException;
+import com.aluracurso.Foro_Hub.domain.exception.TopicoNoEncontradoException;
+import com.aluracurso.Foro_Hub.domain.repository.CursoRepository;
+import com.aluracurso.Foro_Hub.domain.repository.TopicoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
@@ -20,6 +25,9 @@ import java.util.Optional;
 public class TopicoApplicationService {
     @Autowired
     private TopicoRepository topicoRepository;
+
+    @Autowired
+    private CursoRepository cursoRepository;
 
     private Optional<List<DatosTopicoDTO>> convertirDTO(List<Topico> listaTopico){
         if(!listaTopico.isEmpty())
@@ -61,12 +69,20 @@ public class TopicoApplicationService {
     }
 
     @Transactional
-    public Topico guardarTopico(Topico topico) throws TopicoDuplicadoException  {
+    public Topico guardarTopico(Topico topico, long cursoEnDTO) throws TopicoDuplicadoException, CursoNoEncontradoException  {
         try {
+            var curso = cursoRepository.getById(cursoEnDTO);
+            topico.setCurso(curso);
+            var authentication = SecurityContextHolder.getContext().getAuthentication();
+            Usuario usuarioAutenticado = (Usuario) authentication.getPrincipal();
+            Long idUsuario = usuarioAutenticado.getId();
+            topico.setAutor(idUsuario);
             topicoRepository.save(topico);
             return topico;
         } catch (DataIntegrityViolationException e) {
             throw new TopicoDuplicadoException("El título o mensaje del tópico ya existe.");
+        } catch (RuntimeException e) {
+            throw new CursoNoEncontradoException("El curso ingresado no existe ");
         }
     }
 
@@ -78,7 +94,7 @@ public class TopicoApplicationService {
                 topico.setTitulo(topicoActualizacionDTO.titulo());
                 topico.setMensaje(topicoActualizacionDTO.mensaje());
                 topico.setStatus(topicoActualizacionDTO.status());
-                topico.setCurso(topicoActualizacionDTO.curso());
+                //topico.setCurso(topicoActualizacionDTO.curso());
                 topicoRepository.save(topico);
         }        catch (DataIntegrityViolationException e) {
             throw new TopicoDuplicadoException("El título o mensaje del tópico ya existe.");

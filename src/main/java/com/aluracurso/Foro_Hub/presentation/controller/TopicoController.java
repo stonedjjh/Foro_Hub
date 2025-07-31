@@ -4,7 +4,8 @@ import com.aluracurso.Foro_Hub.aplication.dto.DatosTopicoDTO;
 import com.aluracurso.Foro_Hub.aplication.dto.TopicoActualizacionDTO;
 import com.aluracurso.Foro_Hub.aplication.dto.TopicoDTO;
 import com.aluracurso.Foro_Hub.aplication.service.TopicoApplicationService;
-import com.aluracurso.Foro_Hub.domain.topico.entity.Topico;
+import com.aluracurso.Foro_Hub.domain.entity.Topico;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ import org.springframework.data.web.PageableDefault;
 
 @RestController
 @RequestMapping("/topicos")
+@SecurityRequirement(name = "bearer-key")
 public class TopicoController {
 
     @Autowired
@@ -67,17 +69,16 @@ public class TopicoController {
     }
 
 
-    @GetMapping("" +
-            "/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<DatosTopicoDTO> buscarTopicoPorId(@PathVariable Long id) {
         DatosTopicoDTO datosTopicoDTO = topicoApplicationService.obtenerTopicoPorId(id);
         return ResponseEntity.ok(datosTopicoDTO);
     }
 
     @PostMapping
-    public ResponseEntity<DatosTopicoDTO> agregarNuevoTopico(@Valid @RequestBody TopicoDTO topicoDTO) {
+    public ResponseEntity<DatosTopicoDTO> agregarNuevoTopico(@Valid @RequestBody TopicoDTO topicoDTO){
         Topico topico = new Topico(topicoDTO);
-        Topico topicoAlmacenado = topicoApplicationService.guardarTopico(topico);
+        Topico topicoAlmacenado = topicoApplicationService.guardarTopico(topico, topicoDTO.curso());
         return ResponseEntity.status(HttpStatus.CREATED).body(new DatosTopicoDTO(topicoAlmacenado));
     }
 }

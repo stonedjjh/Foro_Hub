@@ -1,4 +1,4 @@
-package com.aluracurso.Foro_Hub.domain.topico.entity;
+package com.aluracurso.Foro_Hub.domain.entity;
 
 import com.aluracurso.Foro_Hub.aplication.dto.UsuarioDTO;
 import jakarta.persistence.Entity;

@@ -1,4 +1,4 @@
-package com.aluracurso.Foro_Hub.domain.topico.entity;
+package com.aluracurso.Foro_Hub.domain.entity;
 
 import com.aluracurso.Foro_Hub.aplication.dto.TopicoDTO;
 import jakarta.persistence.*;
@@ -24,17 +24,20 @@ public class Topico {
     private String mensaje;
     private LocalDateTime fechaCreacion;
     private String status;
-    private Integer autor;
-    private Integer curso;
+    private Long autor;
+
+    @ManyToOne
+    @JoinColumn(name="curso")
+    private Curso curso;
 
     public Topico(TopicoDTO topicoDTO){
         this.titulo = topicoDTO.titulo();
         this.mensaje = topicoDTO.mensaje();
-        this.fechaCreacion = topicoDTO.fechaCreacion();
+        this.fechaCreacion = LocalDateTime.now();
         this.status = topicoDTO.status();
-        this.autor = topicoDTO.autor();
-        this.curso = topicoDTO.curso();
+
     }
+
 
     @Override
     public boolean equals(Object o) {

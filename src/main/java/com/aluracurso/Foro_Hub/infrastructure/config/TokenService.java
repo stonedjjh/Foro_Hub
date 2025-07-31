@@ -1,6 +1,6 @@
 package com.aluracurso.Foro_Hub.infrastructure.config;
 
-import com.aluracurso.Foro_Hub.domain.topico.entity.Usuario;
+import com.aluracurso.Foro_Hub.domain.entity.Usuario;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;

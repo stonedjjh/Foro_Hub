@@ -9,13 +9,9 @@ public record TopicoDTO(
         String titulo,
         @NotBlank(message = "El mensaje no puede estar vacío")
         String mensaje,
-        @NotNull(message = "La fecha no puede estar vacía")
-        LocalDateTime fechaCreacion,
         @NotBlank(message = "El status no puede estar vacío")
         String status,
-        @NotNull(message = "El autor no puede estar vacío")
-        Integer autor,
         @NotNull(message = "El curso no puede estar vacío")
-        Integer curso
+        Long curso
 ) {
 }

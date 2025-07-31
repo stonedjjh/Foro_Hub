@@ -1,6 +1,6 @@
 package com.aluracurso.Foro_Hub.infrastructure.config;
 
-import com.aluracurso.Foro_Hub.domain.topico.repository.UsuarioRepository;
+import com.aluracurso.Foro_Hub.domain.repository.UsuarioRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,7 +35,6 @@ public class SecurityFilter extends OncePerRequestFilter {
 
             var authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
         }
 
         filterChain.doFilter(request, response);
