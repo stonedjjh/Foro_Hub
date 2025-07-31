@@ -1,4 +1,4 @@
-package com.aluracurso.Foro_Hub.domain.topico.exception;
+package com.aluracurso.Foro_Hub.domain.exception;
 
 public class TopicoDuplicadoException extends RuntimeException {
     public TopicoDuplicadoException(String message) {
