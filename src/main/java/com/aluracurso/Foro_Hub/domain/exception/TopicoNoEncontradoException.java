@@ -1,4 +1,4 @@
-package com.aluracurso.Foro_Hub.domain.topico.exception; // Ubicación recomendada en la capa de dominio
+package com.aluracurso.Foro_Hub.domain.exception; // Ubicación recomendada en la capa de dominio
 
 public class TopicoNoEncontradoException extends RuntimeException { // Extiende RuntimeException para ser unchecked
 

@@ -1,13 +1,11 @@
-package com.aluracurso.Foro_Hub.domain.topico.repository;
+package com.aluracurso.Foro_Hub.domain.repository;
 
-import com.aluracurso.Foro_Hub.domain.topico.entity.Topico;
+import com.aluracurso.Foro_Hub.domain.entity.Topico;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 //Importaciones necesarias para la paginación
-import org.springframework.data.domain.Page; // Importar Page
-import org.springframework.data.domain.Pageable; // Importar Pageable
 
 import java.util.List;
 
