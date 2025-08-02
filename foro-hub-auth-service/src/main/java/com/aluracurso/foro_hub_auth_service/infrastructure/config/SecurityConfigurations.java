@@ -1,4 +1,4 @@
-package com.aluracurso.Foro_Hub.infrastructure.config;
+package com.aluracurso.foro_hub_auth_service.infrastructure.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

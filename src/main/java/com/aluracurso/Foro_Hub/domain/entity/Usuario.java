@@ -1,10 +1,7 @@
 package com.aluracurso.Foro_Hub.domain.entity;
 
 import com.aluracurso.Foro_Hub.aplication.dto.UsuarioDTO;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -35,6 +32,15 @@ public class Usuario implements UserDetails {
     @NotBlank
     String contraseña;
 
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "perfil_usuario", // Nombre de la tabla intermedia en la BD
+            joinColumns = @JoinColumn(name = "id_usuario"), // Columna que referencia a esta entidad (Usuario)
+            inverseJoinColumns = @JoinColumn(name = "id_perfil") // Columna que referencia a la otra entidad (Perfil)
+    )
+    private List<Perfil> perfiles;
+
     public Usuario(UsuarioDTO usuarioDTO){
         this.correoElectronico = usuarioDTO.correoElectronico();
         this.contraseña = usuarioDTO.clave();
@@ -42,7 +48,9 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        return  this.getPerfiles().stream()
+                                .map(p->new SimpleGrantedAuthority(p.getNombre()))
+                        .toList();
     }
 
     public String getPassword(){

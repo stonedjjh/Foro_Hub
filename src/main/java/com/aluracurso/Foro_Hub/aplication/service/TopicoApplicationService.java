@@ -3,6 +3,7 @@ package com.aluracurso.Foro_Hub.aplication.service;
 import com.aluracurso.Foro_Hub.aplication.dto.DatosTopicoDTO;
 import com.aluracurso.Foro_Hub.aplication.dto.TopicoActualizacionDTO;
 import com.aluracurso.Foro_Hub.aplication.dto.TopicoDTO;
+import com.aluracurso.Foro_Hub.aplication.dto.UserDetailsFromToken;
 import com.aluracurso.Foro_Hub.domain.entity.Topico;
 import com.aluracurso.Foro_Hub.domain.entity.Usuario;
 import com.aluracurso.Foro_Hub.domain.exception.CursoNoEncontradoException;
@@ -13,11 +14,13 @@ import com.aluracurso.Foro_Hub.domain.repository.TopicoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import javax.security.auth.kerberos.KerberosKey;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,15 +77,14 @@ public class TopicoApplicationService {
             var curso = cursoRepository.getById(cursoEnDTO);
             topico.setCurso(curso);
             var authentication = SecurityContextHolder.getContext().getAuthentication();
-            Usuario usuarioAutenticado = (Usuario) authentication.getPrincipal();
-            Long idUsuario = usuarioAutenticado.getId();
-            topico.setAutor(idUsuario);
+            UserDetailsFromToken principal = (UserDetailsFromToken) authentication.getPrincipal();
+            topico.setAutor(principal.id());
             topicoRepository.save(topico);
             return topico;
         } catch (DataIntegrityViolationException e) {
             throw new TopicoDuplicadoException("El título o mensaje del tópico ya existe.");
         } catch (RuntimeException e) {
-            throw new CursoNoEncontradoException("El curso ingresado no existe ");
+            throw new CursoNoEncontradoException("El curso ingresado no existe " + e.getMessage());
         }
     }
 
