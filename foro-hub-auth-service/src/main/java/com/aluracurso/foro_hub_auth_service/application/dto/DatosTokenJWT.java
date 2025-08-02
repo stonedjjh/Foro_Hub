@@ -1,4 +1,4 @@
-package com.aluracurso.Foro_Hub.aplication.dto;
+package com.aluracurso.foro_hub_auth_service.application.dto;
 
 import java.util.List;
 

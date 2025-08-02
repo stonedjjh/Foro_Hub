@@ -1,7 +1,7 @@
-package com.aluracurso.Foro_Hub.infrastructure.config;
+package com.aluracurso.foro_hub_auth_service.infrastructure.config;
 
 
-import com.aluracurso.Foro_Hub.aplication.dto.UserDetailsFromToken;
+import com.aluracurso.foro_hub_auth_service.application.dto.UserDetailsFromToken;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
