@@ -1,8 +1,8 @@
 package com.aluracurso.foro_hub_auth_service.application.service;
 
 import com.aluracurso.foro_hub_auth_service.application.dto.DatosTokenJWT;
-import com.aluracurso.foro_hub_auth_service.domain.entity.Usuario;
-import com.aluracurso.foro_hub_auth_service.infrastructure.config.TokenService;
+import com.aluracurso.foro_hub_auth_service.dominio.usuario.Usuario;
+import com.aluracurso.foro_hub_auth_service.infraestructura.config.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

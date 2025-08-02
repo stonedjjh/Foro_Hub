@@ -1,4 +1,4 @@
-package com.aluracurso.foro_hub_auth_service.infrastructure.config;
+package com.aluracurso.foro_hub_auth_service.infraestructura.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

@@ -1,4 +1,4 @@
-package com.aluracurso.foro_hub_auth_service.infrastructure.config;
+package com.aluracurso.foro_hub_auth_service.infraestructura.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +28,7 @@ public class SecurityConfigurations {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/login").permitAll() // Permitir acceso público a /login
                         .requestMatchers("/v3/api-docs/**","/swagger-ui.html/**","swagger-ui/**").permitAll()
+                        .requestMatchers("/test").hasRole("USUARIO")
                         .anyRequest().authenticated() // Todas las demás rutas requieren autenticación
                 )
                 // Aquí irían las configuraciones para JWT o el tipo de autenticación

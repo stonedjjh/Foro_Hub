@@ -1,4 +1,4 @@
-package com.aluracurso.foro_hub_auth_service.infrastructure.config;
+package com.aluracurso.foro_hub_auth_service.infraestructura.config;
 
 
 import com.aluracurso.foro_hub_auth_service.application.dto.UserDetailsFromToken;
@@ -26,6 +26,12 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        if (request.getRequestURI().equals("/login") || request.getRequestURI().startsWith("/v3/api-docs") || request.getRequestURI().startsWith("/swagger-ui")) {
+            filterChain.doFilter(request, response);
+            return; // Retornar para que no se ejecute el resto del código
+        }
+
+
         var tokenJWT = recuperarToken(request);
         if (tokenJWT != null) {
             DecodedJWT decodedJWT = tokenService.verificarTokenYDecodificar(tokenJWT);

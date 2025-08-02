@@ -1,4 +1,4 @@
-package com.aluracurso.foro_hub_auth_service.domain.entity;
+package com.aluracurso.foro_hub_auth_service.infraestructura.persistencia;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

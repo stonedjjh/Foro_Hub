@@ -1,6 +1,6 @@
-package com.aluracurso.foro_hub_auth_service.infrastructure.config;
+package com.aluracurso.foro_hub_auth_service.infraestructura.config;
 
-import com.aluracurso.foro_hub_auth_service.domain.entity.Usuario;
+import com.aluracurso.foro_hub_auth_service.dominio.usuario.Usuario;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
@@ -30,7 +30,7 @@ public class TokenService {
                     .withClaim("id",usuario.getId())
                     .withClaim("permisos",
                             usuario.getPerfiles().stream()
-                                    .map(p->p.getNombre())
+                                    .map(p->"ROLE_" + p.getNombre())
                                     .toList()
                     )
                     .withExpiresAt(fechaExpiracion())

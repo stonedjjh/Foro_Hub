@@ -1,6 +1,7 @@
-package com.aluracurso.foro_hub_auth_service.infrastructure.security;
+package com.aluracurso.foro_hub_auth_service.infraestructura.security;
 
-import com.aluracurso.foro_hub_auth_service.domain.entity.Usuario;
+
+import com.aluracurso.foro_hub_auth_service.dominio.usuario.Usuario;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,7 +29,7 @@ public class UserDetailsFromEntity implements UserDetails {
 
     @Override
     public String getPassword() {
-        return this.usuario.getContraseña();
+        return this.usuario.getClave();
     }
 
     @Override
