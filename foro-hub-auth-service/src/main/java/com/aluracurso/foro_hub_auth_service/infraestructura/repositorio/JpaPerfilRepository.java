@@ -29,6 +29,13 @@ public class JpaPerfilRepository implements PerfilRepository {
     }
 
     @Override
+    public Optional<Perfil> encontrarPorId(Long id) {
+        // Se busca la entidad de persistencia y se convierte a la entidad de dominio.
+        return jpaRepository.findById(id)
+                .map(this::convertirAEntidadDominio);
+    }
+
+    @Override
     public Perfil guardar(Perfil perfilDominio) {
         // Convierte el POJO de dominio a la entidad de persistencia.
         var perfilPersistencia = new com.aluracurso.foro_hub_auth_service.infraestructura.persistencia.Perfil();
@@ -46,7 +53,7 @@ public class JpaPerfilRepository implements PerfilRepository {
      * @param perfilPersistencia La entidad de persistencia.
      * @return El objeto de dominio.
      */
-    private Perfil convertirAEntidadDominio(com.aluracurso.foro_hub_auth_service.infraestructura.persistencia.Perfil perfilPersistencia) {
+    public Perfil convertirAEntidadDominio(com.aluracurso.foro_hub_auth_service.infraestructura.persistencia.Perfil perfilPersistencia) {
         return new Perfil(
                 perfilPersistencia.getId(),
                 perfilPersistencia.getNombre()

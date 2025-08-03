@@ -1,7 +1,7 @@
 package com.aluracurso.foro_hub_auth_service.presentation.controller;
 
 import com.aluracurso.foro_hub_auth_service.application.dto.DatosTokenJWT;
-import com.aluracurso.foro_hub_auth_service.application.dto.UsuarioDTO;
+import com.aluracurso.foro_hub_auth_service.application.dto.LoginDTO;
 import com.aluracurso.foro_hub_auth_service.application.service.TokenGenerationService;
 import com.aluracurso.foro_hub_auth_service.dominio.usuario.Usuario;
 import com.aluracurso.foro_hub_auth_service.infraestructura.security.UserDetailsFromEntity; // Importación necesaria
@@ -55,8 +55,8 @@ public class LoginController {
     })
 
     @PostMapping
-    public ResponseEntity iniciarSesion(@Valid @RequestBody UsuarioDTO usuarioDTO) {
-        var authenticationToken = new UsernamePasswordAuthenticationToken(usuarioDTO.correoElectronico(), usuarioDTO.clave());
+    public ResponseEntity iniciarSesion(@Valid @RequestBody LoginDTO loginDTO) {
+        var authenticationToken = new UsernamePasswordAuthenticationToken(loginDTO.correoElectronico(), loginDTO.clave());
         var autenticacion = manager.authenticate(authenticationToken);
 
         // Se extrae la entidad Usuario del objeto UserDetailsFromEntity.

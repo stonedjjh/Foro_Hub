@@ -3,19 +3,14 @@ package com.aluracurso.foro_hub_auth_service.application.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 
-import java.util.List;
-
-@Schema(description = "DTO para la creación de un usuario")
-public record UsuarioDTO(
-        @NotBlank(message = "El nombre es obligatorio")
-        String nombre,
+@Schema(description = "DTO para las credenciales de inicio de sesión")
+public record LoginDTO(
         @NotBlank(message = "El correo electrónico es obligatorio")
         @Email(message = "El formato del correo electrónico es inválido")
         String correoElectronico,
-        @NotEmpty(message = "El rol es obligatorio")
-        List<Long> idRol
+        @NotBlank(message = "La contraseña es obligatoria")
+        String clave
 ) {
-
 }
+

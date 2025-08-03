@@ -3,6 +3,7 @@ package com.aluracurso.foro_hub_auth_service.infraestructura.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,9 +27,9 @@ public class SecurityConfigurations {
         return http.csrf(csrf -> csrf.disable()) // Deshabilitar CSRF para APIs REST sin estado
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sin sesiones
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/login").permitAll() // Permitir acceso público a /login
+                        .requestMatchers("/login" ).permitAll() // Permitir acceso público a /login
+                        .requestMatchers(HttpMethod.POST,"/usuario").permitAll() // Permitir acceso público a /usuario
                         .requestMatchers("/v3/api-docs/**","/swagger-ui.html/**","swagger-ui/**").permitAll()
-                        .requestMatchers("/test").hasRole("USUARIO")
                         .anyRequest().authenticated() // Todas las demás rutas requieren autenticación
                 )
                 // Aquí irían las configuraciones para JWT o el tipo de autenticación

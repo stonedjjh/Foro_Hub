@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface IJpaPerfilRepository extends JpaRepository<Perfil, Long> {
 
     Optional<Perfil> findByNombre(String nombreDelPerfil);
+    Optional<Perfil> findById(Long Id);
 }

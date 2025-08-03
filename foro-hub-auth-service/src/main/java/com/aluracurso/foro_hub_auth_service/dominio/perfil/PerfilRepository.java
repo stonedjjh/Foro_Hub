@@ -6,4 +6,5 @@ public interface PerfilRepository {
     Perfil guardar(Perfil perfil);
 
     Optional<Perfil> encontrarPorNombre(String nombre);
+    Optional<Perfil> encontrarPorId(Long Id);
 }

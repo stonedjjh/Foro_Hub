@@ -3,6 +3,7 @@ package com.aluracurso.foro_hub_auth_service.infraestructura.repositorio;
 import com.aluracurso.foro_hub_auth_service.dominio.perfil.PerfilRepository;
 import com.aluracurso.foro_hub_auth_service.dominio.usuario.Usuario;
 import com.aluracurso.foro_hub_auth_service.dominio.usuario.UsuarioRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,6 +15,33 @@ public class JpaUsuarioRepository implements UsuarioRepository {
 
     private final IJpaUsuarioRepository jpaUsuarioRepository;
     private final PerfilRepository perfilRepository;
+
+    private void mapearDominioAPersistencia(Usuario usuario, com.aluracurso.foro_hub_auth_service.infraestructura.persistencia.Usuario usuarioPersistencia){
+
+
+        // Convierte el POJO de dominio a la entidad de persistencia
+        usuarioPersistencia.setNombre(usuario.getNombre());
+        usuarioPersistencia.setCorreoElectronico(usuario.getCorreoElectronico());
+        usuarioPersistencia.setContraseña(usuario.getClave());
+
+   /*     // Obtiene los perfiles existentes de la base de datos y los convierte a objetos de persistencia
+        List<com.aluracurso.foro_hub_auth_service.infraestructura.persistencia.Perfil> perfilesPersistencia = usuario.getPerfiles().stream()
+                .map(perfilDominio -> {
+                    var perfilDelDominio = perfilRepository.encontrarPorNombre(perfilDominio.getNombre())
+                            .orElseThrow(() -> new RuntimeException("Perfil no encontrado: " + perfilDominio.getNombre()));
+                    return convertirPerfilAPersistencia(perfilDelDominio);
+                })
+                .collect(Collectors.toList());*/
+
+        // Transforma la lista de perfiles del dominio a una lista de perfiles de persistencia
+        List<com.aluracurso.foro_hub_auth_service.infraestructura.persistencia.Perfil> perfilesPersistencia = usuario.getPerfiles().stream()
+                .map(this::convertirPerfilAPersistencia)
+                .collect(Collectors.toList());
+
+        usuarioPersistencia.setPerfiles(perfilesPersistencia);
+
+        return;
+    }
 
     public JpaUsuarioRepository(IJpaUsuarioRepository jpaUsuarioRepository, PerfilRepository perfilRepository) {
         this.jpaUsuarioRepository = jpaUsuarioRepository;
@@ -27,29 +55,48 @@ public class JpaUsuarioRepository implements UsuarioRepository {
     }
 
     @Override
+    public List<Usuario> listarTodos() {
+        return jpaUsuarioRepository.findAll()
+                .stream().map(this::convertirAEntidadDominio).toList();
+    }
+
+    @Override
     public Usuario guardar(Usuario usuarioDominio) {
-        // Convierte el POJO de dominio a la entidad de persistencia para guardar
-        com.aluracurso.foro_hub_auth_service.infraestructura.persistencia.Usuario usuarioPersistencia = new com.aluracurso.foro_hub_auth_service.infraestructura.persistencia.Usuario();
-        usuarioPersistencia.setNombre(usuarioDominio.getNombre());
-        usuarioPersistencia.setCorreoElectronico(usuarioDominio.getCorreoElectronico());
-        usuarioPersistencia.setContraseña(usuarioDominio.getClave());
+        var usuarioPersistencia = new com.aluracurso.foro_hub_auth_service.infraestructura.persistencia.Usuario();
+        this.mapearDominioAPersistencia(usuarioDominio,usuarioPersistencia);
 
-        // Obtiene los perfiles existentes de la base de datos y los convierte a objetos de persistencia
-        List<com.aluracurso.foro_hub_auth_service.infraestructura.persistencia.Perfil> perfilesPersistencia = usuarioDominio.getPerfiles().stream()
-                .map(perfilDominio -> {
-                    var perfilDelDominio = perfilRepository.encontrarPorNombre(perfilDominio.getNombre())
-                            .orElseThrow(() -> new RuntimeException("Perfil no encontrado: " + perfilDominio.getNombre()));
-                    return convertirPerfilAPersistencia(perfilDelDominio);
-                })
-                .collect(Collectors.toList());
+        // Guarda en la base de datos
 
-        usuarioPersistencia.setPerfiles(perfilesPersistencia);
+        var usuarioGuardado = jpaUsuarioRepository.save(usuarioPersistencia);
 
+        // Convierte la entidad guardada de vuelta al POJO de dominio para devolver
+        return convertirAEntidadDominio(usuarioGuardado);
+    }
+
+    @Override
+    public Usuario actualizar(Usuario usuario) {
+
+        var usuarioPersistencia = jpaUsuarioRepository.getById(usuario.getId());
+        this.mapearDominioAPersistencia(usuario, usuarioPersistencia);
         // Guarda en la base de datos
         var usuarioGuardado = jpaUsuarioRepository.save(usuarioPersistencia);
 
         // Convierte la entidad guardada de vuelta al POJO de dominio para devolver
         return convertirAEntidadDominio(usuarioGuardado);
+    }
+
+    @Override
+    public void eliminar(Long id) {
+        this.buscarPorId(id)
+                .ifPresentOrElse(
+                        usuario -> jpaUsuarioRepository.deleteById(id),
+                        () -> { throw new EntityNotFoundException(); }
+                );
+    }
+
+    @Override
+    public Optional<Usuario> buscarPorId(Long id) {
+        return jpaUsuarioRepository.findById(id).map(this::convertirAEntidadDominio);
     }
 
     // Método privado para la conversión de Usuario de persistencia a dominio

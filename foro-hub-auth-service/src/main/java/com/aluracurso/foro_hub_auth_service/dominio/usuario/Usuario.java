@@ -27,6 +27,14 @@ public class Usuario implements UserDetails {
         this.perfiles = new ArrayList<>();
     }
 
+    public Usuario(String nombre, String correoElectronico, String clave, List<Perfil> rol) {
+        this.nombre = nombre;
+        this.correoElectronico = correoElectronico;
+        this.clave = clave;
+        this.perfiles = new ArrayList<>();
+        rol.forEach(r -> this.perfiles.add(r));
+    }
+
     // Getters y setters
     public Long getId() {
         return id;
