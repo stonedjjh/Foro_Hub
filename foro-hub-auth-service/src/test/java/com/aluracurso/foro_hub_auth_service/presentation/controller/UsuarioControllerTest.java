@@ -1,14 +1,15 @@
 package com.aluracurso.foro_hub_auth_service.presentation.controller;
 
+import com.aluracurso.foro_hub_auth_service.aplicacion.dto.DatosActualizarUsuarioDTO;
 import com.aluracurso.foro_hub_auth_service.aplicacion.service.UsuarioService;
 import com.aluracurso.foro_hub_auth_service.dominio.perfil.Perfil;
 import com.aluracurso.foro_hub_auth_service.dominio.usuario.Usuario;
+import com.aluracurso.foro_hub_auth_service.infraestructura.config.TestSecurityConfiguration;
 import com.aluracurso.foro_hub_auth_service.infraestructura.config.TokenService;
-import com.aluracurso.foro_hub_auth_service.infraestructura.config.TestSecurityConfiguration; // Importa la clase de configuración de prueba
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import; // Importa la anotación @Import
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -20,10 +21,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 
 // Importamos la configuración de seguridad para que @PreAuthorize funcione en el test
 @Import(TestSecurityConfiguration.class)
@@ -91,9 +96,9 @@ class UsuarioControllerTest {
         mockMvc.perform(get("/usuario")
                         .contentType(MediaType.APPLICATION_JSON))
                 // Esperamos que la respuesta sea 403 Forbidden.
-                // Ahora, con la configuración de seguridad importada, esta prueba pasará.
                 .andExpect(status().isForbidden());
     }
+
 
     /**
      * Prueba el caso de fallo: un usuario no autenticado (sin token)
@@ -102,7 +107,6 @@ class UsuarioControllerTest {
     @Test
     void testListarUsuarios_retorna401UnauthorizedCuandoNoHayAutenticacion() throws Exception {
         // Ejecución y verificación: se espera un código de estado 401 Unauthorized
-        // No se usa @WithMockUser aquí para simular un usuario no autenticado.
         mockMvc.perform(get("/usuario")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
@@ -124,5 +128,113 @@ class UsuarioControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.length()").value(0))
                 .andExpect(jsonPath("$.empty").value(true));
+    }
+
+
+    // --- NUEVOS TESTS PARA ACTUALIZAR Y ELIMINAR USUARIOS ---
+
+    /**
+     * Prueba: un ADMINISTRADOR puede actualizar el perfil de cualquier usuario.
+     */
+    @Test
+    @WithMockUser(roles = "ADMINISTRADOR")
+    void testActualizarUsuario_exitoComoAdministrador() throws Exception {
+        Long idUsuarioAActualizar = 2L;
+        // Se corrige la llamada al constructor para incluir una lista vacía de permisos
+        DatosActualizarUsuarioDTO datosActualizacion = new DatosActualizarUsuarioDTO(
+                "Nuevo Nombre", "nuevo.correo@ejemplo.com", List.of());
+
+        Usuario usuarioActualizado = new Usuario("Nuevo Nombre", "nuevo.correo@ejemplo.com", "pass", List.of());
+        usuarioActualizado.setId(idUsuarioAActualizar);
+
+        when(usuarioService.actualizar(any(Long.class), any(DatosActualizarUsuarioDTO.class))).thenReturn(usuarioActualizado);
+
+        mockMvc.perform(put("/usuario/{id}", idUsuarioAActualizar)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nombre\":\"Nuevo Nombre\", \"correoElectronico\":\"nuevo.correo@ejemplo.com\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(idUsuarioAActualizar))
+                .andExpect(jsonPath("$.nombre").value("Nuevo Nombre"));
+    }
+    /**
+     * Prueba: un usuario puede actualizar su propio perfil.
+     * Usamos la anotación @WithMockCustomUser que ya tienes en otro archivo.
+     */
+    @Test
+    @WithMockCustomUser(id = 1L)
+    void testActualizarUsuario_exitoComoUsuarioDueño() throws Exception {
+        Long idUsuarioAutenticado = 1L;
+        // Se corrige la llamada al constructor para incluir una lista vacía de permisos
+        DatosActualizarUsuarioDTO datosActualizacion = new DatosActualizarUsuarioDTO(
+                "Nuevo Nombre", "nuevo.correo@ejemplo.com", List.of());
+
+        Usuario usuarioActualizado = new Usuario("Nuevo Nombre", "nuevo.correo@ejemplo.com", "pass", List.of());
+        usuarioActualizado.setId(idUsuarioAutenticado);
+
+        when(usuarioService.actualizar(any(Long.class), any(DatosActualizarUsuarioDTO.class))).thenReturn(usuarioActualizado);
+
+        mockMvc.perform(put("/usuario/{id}", idUsuarioAutenticado)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nombre\":\"Nuevo Nombre\", \"correoElectronico\":\"nuevo.correo@ejemplo.com\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(idUsuarioAutenticado))
+                .andExpect(jsonPath("$.nombre").value("Nuevo Nombre"));
+    }
+
+    /**
+     * Prueba: un usuario intenta actualizar el perfil de otro usuario y es denegado.
+     */
+    @Test
+    @WithMockCustomUser(id = 1L)
+    void testActualizarUsuario_denegadoParaUsuarioNoDueño() throws Exception {
+        Long idUsuarioAutenticado = 1L;
+        Long idUsuarioAActualizar = 2L;
+
+        mockMvc.perform(put("/usuario/{id}", idUsuarioAActualizar)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nombre\":\"Nombre Falso\", \"correoElectronico\":\"falso@ejemplo.com\"}"))
+                .andExpect(status().isForbidden());
+    }
+
+    /**
+     * Prueba: un ADMINISTRADOR puede eliminar cualquier usuario.
+     */
+    @Test
+    @WithMockUser(roles = "ADMINISTRADOR")
+    void testEliminarUsuario_exitoComoAdministrador() throws Exception {
+        Long idUsuarioAEliminar = 1L;
+        doNothing().when(usuarioService).eliminar(idUsuarioAEliminar);
+
+        mockMvc.perform(delete("/usuario/{id}", idUsuarioAEliminar)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
+
+    /**
+     * Prueba: un usuario puede eliminar su propia cuenta.
+     */
+  /*  @Test
+    @WithMockCustomUser(id = 1L)
+    void testEliminarUsuario_exitoComoUsuarioDueño() throws Exception {
+        Long idUsuarioAutenticado = 1L;
+        doNothing().when(usuarioService).eliminar(idUsuarioAutenticado);
+
+        mockMvc.perform(delete("/usuario/{id}", idUsuarioAutenticado)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }*/
+
+    /**
+     * Prueba: un usuario intenta eliminar la cuenta de otro usuario y es denegado.
+     */
+    @Test
+    @WithMockCustomUser(id = 1L)
+    void testEliminarUsuario_denegadoParaUsuarioNoDueño() throws Exception {
+        Long idUsuarioAutenticado = 1L;
+        Long idUsuarioAEliminar = 2L;
+
+        mockMvc.perform(delete("/usuario/{id}", idUsuarioAEliminar)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
     }
 }

@@ -20,6 +20,8 @@ public class UserDetailsFromEntity implements UserDetails {
         return usuario;
     }
 
+
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.usuario.getPerfiles().stream()
