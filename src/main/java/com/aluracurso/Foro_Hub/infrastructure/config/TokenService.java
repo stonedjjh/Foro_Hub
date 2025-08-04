@@ -26,6 +26,7 @@ public class TokenService {
             return JWT.create()
                     .withIssuer("API foro.alura")
                     .withSubject(usuario.getCorreoElectronico())
+                    .withClaim("id", usuario.getId())
                     .withExpiresAt(fechaExpiracion())
                     .sign(algoritmo);
         } catch (JWTCreationException exception){
