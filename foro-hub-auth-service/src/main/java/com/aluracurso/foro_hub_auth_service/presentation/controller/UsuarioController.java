@@ -1,8 +1,8 @@
 package com.aluracurso.foro_hub_auth_service.presentation.controller;
 
 
-import com.aluracurso.foro_hub_auth_service.application.dto.*;
-import com.aluracurso.foro_hub_auth_service.application.service.UsuarioService;
+import com.aluracurso.foro_hub_auth_service.aplicacion.dto.*;
+import com.aluracurso.foro_hub_auth_service.aplicacion.service.UsuarioService;
 import com.aluracurso.foro_hub_auth_service.dominio.perfil.Perfil;
 import com.aluracurso.foro_hub_auth_service.dominio.usuario.Usuario;
 import io.swagger.v3.oas.annotations.Operation;
@@ -107,6 +107,8 @@ public class UsuarioController {
         var usuario = usuarioService.actualizar(id, datosActualizarUsuarioDTO);
         return ResponseEntity.ok().body(this.convertirUsuarioDto(usuario));
     }
+
+
 
 }
 

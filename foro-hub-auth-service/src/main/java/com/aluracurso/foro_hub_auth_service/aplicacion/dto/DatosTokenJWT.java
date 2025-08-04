@@ -1,4 +1,4 @@
-package com.aluracurso.foro_hub_auth_service.application.dto;
+package com.aluracurso.foro_hub_auth_service.aplicacion.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

@@ -1,8 +1,8 @@
 package com.aluracurso.foro_hub_auth_service.presentation.controller;
 
-import com.aluracurso.foro_hub_auth_service.application.dto.DatosTokenJWT;
-import com.aluracurso.foro_hub_auth_service.application.dto.LoginDTO;
-import com.aluracurso.foro_hub_auth_service.application.service.TokenGenerationService;
+import com.aluracurso.foro_hub_auth_service.aplicacion.dto.DatosTokenJWT;
+import com.aluracurso.foro_hub_auth_service.aplicacion.dto.LoginDTO;
+import com.aluracurso.foro_hub_auth_service.aplicacion.service.TokenGenerationService;
 import com.aluracurso.foro_hub_auth_service.dominio.usuario.Usuario;
 import com.aluracurso.foro_hub_auth_service.infraestructura.security.UserDetailsFromEntity; // Importación necesaria
 import io.swagger.v3.oas.annotations.Operation;

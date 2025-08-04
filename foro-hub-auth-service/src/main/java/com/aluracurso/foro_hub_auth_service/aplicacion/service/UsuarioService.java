@@ -1,7 +1,7 @@
-package com.aluracurso.foro_hub_auth_service.application.service;
+package com.aluracurso.foro_hub_auth_service.aplicacion.service;
 
-import com.aluracurso.foro_hub_auth_service.application.dto.DatosActualizarUsuarioDTO;
-import com.aluracurso.foro_hub_auth_service.application.dto.UsuarioDTO;
+import com.aluracurso.foro_hub_auth_service.aplicacion.dto.DatosActualizarUsuarioDTO;
+import com.aluracurso.foro_hub_auth_service.aplicacion.dto.UsuarioDTO;
 import com.aluracurso.foro_hub_auth_service.dominio.exceptions.CorreoElectronicoDuplicadoException;
 import com.aluracurso.foro_hub_auth_service.dominio.exceptions.PerfilNoEncontradoException;
 import com.aluracurso.foro_hub_auth_service.dominio.perfil.PerfilRepository;
@@ -17,7 +17,6 @@ import org.springframework.data.domain.Page; // Importado para la paginación
 import org.springframework.data.domain.Pageable;
 
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
