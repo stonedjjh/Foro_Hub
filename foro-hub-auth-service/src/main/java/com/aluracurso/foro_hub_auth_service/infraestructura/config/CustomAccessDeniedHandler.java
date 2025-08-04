@@ -26,7 +26,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
         // Escribe el mensaje personalizado en el cuerpo de la respuesta.
         String jsonError = String.format("{\"error\": \"%s\"}",
-                "No tienes permisos para realizar esta acción. Solo un administrador o el mismo usuario puede eliminar la cuenta.");
+                "No tienes permisos para realizar esta acción. Solo un administrador o el mismo usuario pueden realizarla");
         response.getWriter().write(jsonError);
     }
 }

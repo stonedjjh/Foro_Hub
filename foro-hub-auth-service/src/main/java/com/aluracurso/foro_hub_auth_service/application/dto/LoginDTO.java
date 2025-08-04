@@ -8,9 +8,10 @@ import jakarta.validation.constraints.NotBlank;
 public record LoginDTO(
         @NotBlank(message = "El correo electrónico es obligatorio")
         @Email(message = "El formato del correo electrónico es inválido")
+        @Schema(description = "Dirección de correo electrónico del usuario", example = "usuario@example.com")
         String correoElectronico,
         @NotBlank(message = "La contraseña es obligatoria")
+        @Schema(description = "Contraseña del usuario", example = "123456")
         String clave
 ) {
 }
-

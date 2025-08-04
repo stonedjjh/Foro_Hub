@@ -20,10 +20,11 @@ public class SpringDocConfiguration {
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer").bearerFormat("JWT")))
                                         .info(new Info()
-                                                .title("Foro Alura API")
-                                                .description("Foro_Hub es una API REST segura en Spring Boot para gestionar tópicos de" +
-                                                        " discusión. Ofrece un completo CRUD, autenticación JWT para protección de " +
-                                                        "endpoints y documentación interactiva generada con OpenAPI (Swagger UI)")
+                                                .title("Foro Alura - Servicio de Autenticación")
+                                                .description("Este es el microservicio de autenticación de Foro Alura. " +
+                                                        "Proporciona endpoints para el registro y login de usuarios, " +
+                                                        "gestión de perfiles y la emisión de tokens JWT, desacoplando " +
+                                                        "la lógica de seguridad del servicio principal del foro.")
                                                 .contact(new Contact()
                                                         .name("Daniel Jiménez")
                                                         .email("danjim82@gmail.com"))
