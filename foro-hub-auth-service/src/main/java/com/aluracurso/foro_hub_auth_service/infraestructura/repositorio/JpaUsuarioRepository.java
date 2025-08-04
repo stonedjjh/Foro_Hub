@@ -4,6 +4,8 @@ import com.aluracurso.foro_hub_auth_service.dominio.perfil.PerfilRepository;
 import com.aluracurso.foro_hub_auth_service.dominio.usuario.Usuario;
 import com.aluracurso.foro_hub_auth_service.dominio.usuario.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -49,16 +51,19 @@ public class JpaUsuarioRepository implements UsuarioRepository {
     }
 
     @Override
-    public Optional<Usuario> encontrarPorCorreoElectronico(String correoElectronico) {
+    public Optional<Usuario> buscarPorCorreoElectronico(String correoElectronico) {
         return jpaUsuarioRepository.findByCorreoElectronico(correoElectronico)
                 .map(this::convertirAEntidadDominio);
     }
 
     @Override
-    public List<Usuario> listarTodos() {
-        return jpaUsuarioRepository.findAll()
-                .stream().map(this::convertirAEntidadDominio).toList();
+    public Page<Usuario> listarTodos(Pageable pageable) {
+        // Delega la paginación al repositorio de JPA y convierte cada entidad a un objeto de dominio
+        return jpaUsuarioRepository.findAll(pageable)
+                .map(this::convertirAEntidadDominio);
     }
+
+
 
     @Override
     public Usuario guardar(Usuario usuarioDominio) {

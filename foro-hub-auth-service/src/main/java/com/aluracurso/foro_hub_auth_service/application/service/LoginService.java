@@ -35,7 +35,7 @@ public class LoginService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         // Busca el usuario utilizando el repositorio del dominio.
         // Se lanza una excepción si el usuario no existe.
-        var usuario = usuarioRepository.encontrarPorCorreoElectronico(username)
+        var usuario = usuarioRepository.buscarPorCorreoElectronico(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con correo: " + username));
 
         // Se crea un objeto UserDetails a partir del POJO de dominio (Usuario),

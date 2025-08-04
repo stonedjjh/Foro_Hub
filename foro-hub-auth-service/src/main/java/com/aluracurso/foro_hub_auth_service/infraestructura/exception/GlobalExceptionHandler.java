@@ -1,5 +1,7 @@
 package com.aluracurso.foro_hub_auth_service.infraestructura.exception;
 
+import com.aluracurso.foro_hub_auth_service.dominio.exceptions.CorreoElectronicoDuplicadoException;
+import com.aluracurso.foro_hub_auth_service.dominio.exceptions.PerfilNoEncontradoException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,22 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    /**
+     * Maneja la excepción CorreoElectronicoDuplicadoException.
+     * @param ex La excepción que fue lanzada.
+     * @return Una respuesta HTTP con el estado 409 (Conflict) y el mensaje de la excepción.
+     */
+    @ExceptionHandler(CorreoElectronicoDuplicadoException.class)
+    public ResponseEntity<String> manejarCorreoElectronicoDuplicado(CorreoElectronicoDuplicadoException ex) {
+        // Devuelve el estado HTTP 409 (Conflict) y solo el mensaje de la excepción.
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(PerfilNoEncontradoException.class)
+    public ResponseEntity<DatosError> handlePerfilNoEncontradoException(PerfilNoEncontradoException ex) {
+        return ResponseEntity.badRequest().body(new DatosError("Perfil " +ex +" no existe"));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<List<DatosErrorValidacion>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         List<DatosErrorValidacion> errores = ex.getFieldErrors().stream()
@@ -35,17 +53,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new DatosError("Credenciales erróneas"));
     }
 
-    @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<DatosError> NoSuchElementExceptionError(NoSuchElementException ex) {
-        return ResponseEntity.badRequest().body(new DatosError("Perfil " +ex +" no existe"));
-    }
-
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<DatosError> EntityNotFoundException(EntityNotFoundException ex) {
         return ResponseEntity.notFound().build();
     }
-
-
 
     public record DatosError(String mensaje) {
     }

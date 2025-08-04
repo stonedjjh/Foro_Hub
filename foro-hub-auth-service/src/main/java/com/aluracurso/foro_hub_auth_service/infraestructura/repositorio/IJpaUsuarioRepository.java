@@ -10,4 +10,5 @@ import java.util.Optional;
 // Notar que la entidad que usa es el POJO de dominio 'Usuario'.
 public interface IJpaUsuarioRepository extends JpaRepository<Usuario, Long> {
     Optional<Usuario> findByCorreoElectronico(String correoElectronico);
+
 }

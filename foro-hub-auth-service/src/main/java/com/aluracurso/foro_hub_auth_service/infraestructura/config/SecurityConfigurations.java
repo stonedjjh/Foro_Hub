@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -13,10 +14,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.access.AccessDeniedHandler;
+
 
 @Configuration
 //Esto para indicarle que se modificara la configuracion del paquete security
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfigurations {
 
     @Autowired
@@ -34,9 +38,14 @@ public class SecurityConfigurations {
                 )
                 // Aquí irían las configuraciones para JWT o el tipo de autenticación
                 // .addFilterBefore(tuFiltroDeAutenticacionJWT, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exceptions -> exceptions
+                        .accessDeniedHandler(accessDeniedHandler())
+                )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
+
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -48,5 +57,10 @@ public class SecurityConfigurations {
         return configuration.getAuthenticationManager();
     }
 
+    // Bean para el manejador de acceso denegado personalizado
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return new CustomAccessDeniedHandler();
+    }
 
 }
