@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import java.util.List;
 
@@ -152,10 +153,15 @@ class UsuarioControllerTest {
         mockMvc.perform(put("/usuario/{id}", idUsuarioAActualizar)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"nombre\":\"Nuevo Nombre\", \"correoElectronico\":\"nuevo.correo@ejemplo.com\"}"))
+                // Aquí se añade el método `andDo(print())` para imprimir
+                // la información completa de la petición y la respuesta en la consola.
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(idUsuarioAActualizar))
                 .andExpect(jsonPath("$.nombre").value("Nuevo Nombre"));
     }
+
+
     /**
      * Prueba: un usuario puede actualizar su propio perfil.
      * Usamos la anotación @WithMockCustomUser que ya tienes en otro archivo.

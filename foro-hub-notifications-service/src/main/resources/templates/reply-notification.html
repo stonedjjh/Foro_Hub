@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nueva Respuesta</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+            line-height: 1.6;
+            color: #333333;
+        }
+        .footer {
+            background-color: #f0f0f0;
+            color: #777777;
+            text-align: center;
+            padding: 15px;
+            font-size: 12px;
+        }
+        h1 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 24px;
+        }
+        h2 {
+            color: #007bff;
+            font-size: 20px;
+        }
+        p {
+            margin: 0 0 10px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .reply-box {
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>¡Alguien ha respondido a tu tema!</h1>
+    </div>
+    <div class="content">
+        <p>Hola,</p>
+        <p>Tu tema titulado **<span th:text="${postTitle}"></span>** ha recibido una nueva respuesta de **<span th:text="${replyAuthorName}"></span>**.</p>
+
+        <h2>Respuesta:</h2>
+        <div class="reply-box">
+            <p th:text="${replyContent}"></p>
+        </div>
+
+        <p>¡Te invitamos a ver la conversación y continuar participando!</p>
+        <!--  Puedes añadir un enlace al tema si tienes la URL  -->
+        <!--  <a th:href="@{'/foros/' + ${postId}}" class="button">Ver Tema</a> -->
+    </div>
+    <div class="footer">
+        <p>&copy; 2024 Foro Hub. Todos los derechos reservados.</p>
+    </div>
+</div>
+</body>
+</html>
