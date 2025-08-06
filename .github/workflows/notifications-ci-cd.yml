@@ -3,12 +3,12 @@ name: CI/CD - Notificaciones Service
 on:
   push:
     branches:
-      - refactor/desacoplamiento-dominio-persistencia # O tu rama principal (ej. develop)
+      - refactor/desacoplamiento-dominio-persistencia 
     paths:
       - 'foro-hub-notifications-service/**' # Se activa solo si hay cambios en esta subcarpeta
   pull_request:
     branches:
-      - refactor/desacoplamiento-dominio-persistencia
+      - refactor/desacoplamiento-dominio-persistencia 
     paths:
       - 'foro-hub-notifications-service/**'
   workflow_dispatch: # Permite ejecutar el workflow manualmente desde GitHub UI
@@ -32,12 +32,14 @@ jobs:
           cache: 'maven' # Cacha las dependencias de Maven para builds más rápidos
 
       - name: Construir el proyecto con Maven (saltando tests)
-        # Construye el JAR ejecutable. Se saltan los tests aquí para que el paso de tests los ejecute explícitamente.
-        run: mvn clean install -DskipTests -f foro-hub-notifications-service/pom.xml
+        # Usa working-directory para cambiar el contexto a la carpeta del servicio.
+        working-directory: ./foro-hub-notifications-service
+        run: mvn clean install -DskipTests
 
       - name: Ejecutar pruebas unitarias y de integración
-        # Ejecuta todos los tests definidos en el proyecto.
-        run: mvn test -f foro-hub-notifications-service/pom.xml
+        # Usa working-directory para cambiar el contexto.
+        working-directory: ./foro-hub-notifications-service
+        run: mvn test
 
       - name: Iniciar sesión en GitHub Container Registry
         # Utiliza el token de GitHub Actions para autenticarse en GHCR.
@@ -58,6 +60,12 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+
+    steps:
+      - name: Activar redespliegue en Render
+        # Envía una petición POST al webhook de despliegue de Render.
+        # Asegúrate de configurar este secreto en tu repositorio de GitHub.
+        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL_NOTIFICATIONS }}"
 
     steps:
       - name: Activar redespliegue en Render
