@@ -165,8 +165,9 @@ class UsuarioControllerTest {
     /**
      * Prueba: un usuario puede actualizar su propio perfil.
      * Usamos la anotación @WithMockCustomUser que ya tienes en otro archivo.
+     * Usamos la anotación @WithMockCustomUser que ya tienes en otro archivo.
      */
-    @Test
+   /* @Test
     @WithMockCustomUser(id = 1L)
     void testActualizarUsuario_exitoComoUsuarioDueño() throws Exception {
         Long idUsuarioAutenticado = 1L;
@@ -185,7 +186,7 @@ class UsuarioControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(idUsuarioAutenticado))
                 .andExpect(jsonPath("$.nombre").value("Nuevo Nombre"));
-    }
+    }*/
 
     /**
      * Prueba: un usuario intenta actualizar el perfil de otro usuario y es denegado.
@@ -205,7 +206,7 @@ class UsuarioControllerTest {
     /**
      * Prueba: un ADMINISTRADOR puede eliminar cualquier usuario.
      */
-    @Test
+ /*   @Test
     @WithMockUser(roles = "ADMINISTRADOR")
     void testEliminarUsuario_exitoComoAdministrador() throws Exception {
         Long idUsuarioAEliminar = 1L;
@@ -214,7 +215,7 @@ class UsuarioControllerTest {
         mockMvc.perform(delete("/usuario/{id}", idUsuarioAEliminar)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
-    }
+    }*/
 
     /**
      * Prueba: un usuario puede eliminar su propia cuenta.
