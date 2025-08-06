@@ -24,6 +24,14 @@ jobs:
       - name: Checkout del código
         uses: actions/checkout@v4 # Clona el repositorio
 
+      - name: Debug - Listar contenido del directorio de trabajo
+        run: |
+          echo "Contenido de ${{ github.workspace }}:"
+          ls -R ${{ github.workspace }}
+          echo "Directorio actual: $(pwd)"
+          echo "Contenido del directorio actual:"
+          ls -R .
+
       - name: Configurar Java 17 con Maven
         uses: actions/setup-java@v4
         with:
@@ -65,4 +73,4 @@ jobs:
       - name: Activar redespliegue en Render
         # Envía una petición POST al webhook de despliegue de Render.
         # Asegúrate de configurar este secreto en tu repositorio de GitHub.
-        run: curl -X POST "${{ secrets.RENDER_HOCK_FORO }}"
+        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL_NOTIFICATIONS }}"
