@@ -66,9 +66,3 @@ jobs:
         # Envía una petición POST al webhook de despliegue de Render.
         # Asegúrate de configurar este secreto en tu repositorio de GitHub.
         run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL_NOTIFICATIONS }}"
-
-    steps:
-      - name: Activar redespliegue en Render
-        # Envía una petición POST al webhook de despliegue de Render.
-        # Asegúrate de configurar este secreto en tu repositorio de GitHub.
-        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL_NOTIFICATIONS }}"
