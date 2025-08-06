@@ -3,26 +3,40 @@ name: CI/CD - Auth Service
 on:
   push:
     branches:
-      - refactor/desacoplamiento-dominio-persistencia # La rama donde quieres que se ejecute
-    paths:
-      - 'foro-hub-auth-service/**' # Se activa solo si hay cambios en esta subcarpeta
-  pull_request:
-    branches:
-      - refactor/desacoplamiento-dominio-persistencia # La rama de destino para Pull Requests
+      - refactor/desacoplamiento-dominio-persistencia
     paths:
       - 'foro-hub-auth-service/**'
-  workflow_dispatch: # Permite ejecutar el workflow manualmente desde GitHub UI
+  pull_request:
+    branches:
+      - refactor/desacoplamiento-dominio-persistencia
+    paths:
+      - 'foro-hub-auth-service/**'
+  workflow_dispatch:
 
 jobs:
   build-test-and-push:
     runs-on: ubuntu-latest
     permissions:
-      contents: read # Permiso para leer el código del repositorio
-      packages: write # Permiso para escribir (push) imágenes en GitHub Container Registry
+      contents: read
+      packages: write
+
+    services: # <-- ¡Aquí es donde debe ir el bloque de servicios!
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: testdb
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
 
     steps:
       - name: Checkout del código
-        uses: actions/checkout@v4 # Clona el repositorio
+        uses: actions/checkout@v4
 
       - name: Debug - Listar contenido del directorio de trabajo
         run: |
@@ -35,45 +49,29 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '17'
-          distribution: 'temurin' # O 'adopt' o 'zulu'
-          cache: 'maven' # Cacha las dependencias de Maven para builds más rápidos
+          distribution: 'temurin'
+          cache: 'maven'
 
       - name: Construir el proyecto con Maven (saltando tests)
-        # Usa working-directory para cambiar el contexto a la carpeta del servicio.
-        working-directory: ./foro-hub-auth-service # <-- Directorio del servicio de auth
+        working-directory: ./foro-hub-auth-service
         run: mvn clean install -DskipTests
-        services:
-          mysql:
-            image: mysql:8
-            env:
-              MYSQL_ROOT_PASSWORD: root
-              MYSQL_DATABASE: testdb
-            ports:
-              - 3306:3306
-            options: >-
-              --health-cmd="mysqladmin ping --silent"
-              --health-interval=10s
-              --health-timeout=5s
-              --health-retries=3
+
+      - name: Esperar a que la base de datos esté lista
+        run: |
+          echo "Esperando 10 segundos a que el servicio de MySQL esté listo..."
+          sleep 10 # Se recomienda usar una herramienta como "wait-for-it.sh" en entornos de producción, pero para este caso 'sleep' es suficiente.
 
       - name: Ejecutar pruebas unitarias y de integración
-        # Usa working-directory para cambiar el contexto.
-        working-directory: ./foro-hub-auth-service # <-- Directorio del servicio de auth
+        working-directory: ./foro-hub-auth-service
         run: mvn test
 
       - name: Iniciar sesión en GitHub Container Registry
-        # Utiliza el token de GitHub Actions para autenticarse en GHCR.
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Construir y etiquetar la imagen Docker
-        # Ejecutar este paso desde el directorio del microservicio de auth.
-        working-directory: ./foro-hub-auth-service # <-- Directorio del servicio de auth
+        working-directory: ./foro-hub-auth-service
         run: |
-          # El Dockerfile ya está en el directorio de trabajo actual.
           docker build -t ghcr.io/${{ github.repository_owner }}/foro-hub-auth-service:latest .
-          # ^^^ Asegúrate de que esta línea no tenga '-f' y termine con un punto '.'
 
       - name: Subir la imagen Docker a GitHub Container Registry
-        # Empuja la imagen construida al GHCR.
         run: docker push ghcr.io/${{ github.repository_owner }}/foro-hub-auth-service:latest
-
