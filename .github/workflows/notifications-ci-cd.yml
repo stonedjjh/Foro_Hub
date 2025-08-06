@@ -3,12 +3,12 @@ name: CI/CD - Notificaciones Service
 on:
   push:
     branches:
-      - refactor/desacoplamiento-dominio-persistencia 
+      - refactor/desacoplamiento-dominio-persistencia # La rama donde quieres que se ejecute
     paths:
       - 'foro-hub-notifications-service/**' # Se activa solo si hay cambios en esta subcarpeta
   pull_request:
     branches:
-      - refactor/desacoplamiento-dominio-persistencia 
+      - refactor/desacoplamiento-dominio-persistencia # La rama de destino para Pull Requests
     paths:
       - 'foro-hub-notifications-service/**'
   workflow_dispatch: # Permite ejecutar el workflow manualmente desde GitHub UI
@@ -34,12 +34,12 @@ jobs:
       - name: Construir el proyecto con Maven (saltando tests)
         # Usa working-directory para cambiar el contexto a la carpeta del servicio.
         working-directory: ./foro-hub-notifications-service
-        run: mvn clean install -DskipTests
+        run: mvn clean install -DskipTests # ¡IMPORTANTE! Sin -f foro-hub-notifications-service/pom.xml
 
       - name: Ejecutar pruebas unitarias y de integración
         # Usa working-directory para cambiar el contexto.
         working-directory: ./foro-hub-notifications-service
-        run: mvn test
+        run: mvn test # ¡IMPORTANTE! Sin -f foro-hub-notifications-service/pom.xml
 
       - name: Iniciar sesión en GitHub Container Registry
         # Utiliza el token de GitHub Actions para autenticarse en GHCR.
@@ -65,4 +65,4 @@ jobs:
       - name: Activar redespliegue en Render
         # Envía una petición POST al webhook de despliegue de Render.
         # Asegúrate de configurar este secreto en tu repositorio de GitHub.
-        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL_NOTIFICATIONS }}"
+        run: curl -X POST "${{ secrets.RENDER_HOCK_FORO }}"
