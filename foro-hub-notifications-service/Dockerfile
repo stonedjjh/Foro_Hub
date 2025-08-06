@@ -18,3 +18,5 @@ EXPOSE 8080
 # Define el comando que se ejecutará cuando el contenedor se inicie.
 # Esto iniciará tu aplicación Spring Boot.
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
+
