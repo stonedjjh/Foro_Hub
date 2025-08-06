@@ -14,6 +14,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page; // Importado para la paginación
 import org.springframework.data.domain.Pageable;
@@ -34,6 +35,13 @@ public class UsuarioService {
     private PerfilRepository perfilRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    // Inyección de las variables de configuración desde application.properties
+    @Value("${microservice.notification.url}")
+    private String notificationServiceUrl;
+
+    @Value("${service.to.service.secret}")
+    private String serviceToServiceSecret;
 
 
     private String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
