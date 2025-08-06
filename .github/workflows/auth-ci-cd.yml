@@ -42,6 +42,19 @@ jobs:
         # Usa working-directory para cambiar el contexto a la carpeta del servicio.
         working-directory: ./foro-hub-auth-service # <-- Directorio del servicio de auth
         run: mvn clean install -DskipTests
+        services:
+          mysql:
+            image: mysql:8
+            env:
+              MYSQL_ROOT_PASSWORD: root
+              MYSQL_DATABASE: testdb
+            ports:
+              - 3306:3306
+            options: >-
+              --health-cmd="mysqladmin ping --silent"
+              --health-interval=10s
+              --health-timeout=5s
+              --health-retries=3
 
       - name: Ejecutar pruebas unitarias y de integración
         # Usa working-directory para cambiar el contexto.
