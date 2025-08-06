@@ -8,7 +8,7 @@ on:
       - 'foro-hub-notifications-service/**' # Se activa solo si hay cambios en esta subcarpeta
   pull_request:
     branches:
-      - main
+      - refactor/desacoplamiento-dominio-persistencia
     paths:
       - 'foro-hub-notifications-service/**'
   workflow_dispatch: # Permite ejecutar el workflow manualmente desde GitHub UI
