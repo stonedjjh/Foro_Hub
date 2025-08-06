@@ -2,27 +2,61 @@ package com.aluracurso.foro_hub_notifications_service.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(description = "Datos para el envío de una notificación de respuesta a un tema del foro.")
+@Schema(description = "DTO para los datos de notificación de una nueva respuesta en un tema.")
 public class ReplyNotificationData {
-    @Schema(description = "Correo electrónico del autor del tema original.", example = "autor@example.com")
+
+    @Schema(description = "Correo electrónico del autor del tema original.", example = "autor.tema@example.com")
     private String recipientEmail;
-    @Schema(description = "Título del tema que ha recibido la respuesta.", example = "Dudas sobre Spring Security")
+    @Schema(description = "Título del tema del foro al que se respondió.", example = "Dudas sobre Microservicios")
     private String postTitle;
-    @Schema(description = "Nombre del autor de la respuesta.", example = "MariaLopez")
+    @Schema(description = "Nombre del autor de la nueva respuesta.", example = "MariaLopez")
     private String replyAuthorName;
-    @Schema(description = "Contenido de la respuesta.", example = "Hola, sobre tu duda, puedes revisar la documentación oficial de Spring...")
+    @Schema(description = "Contenido de la respuesta.", example = "¡Excelente pregunta! Aquí mi aporte...")
     private String replyContent;
 
-    // Getters y setters
-    public String getRecipientEmail() { return recipientEmail; }
-    public void setRecipientEmail(String recipientEmail) { this.recipientEmail = recipientEmail; }
+    // Constructor por defecto (necesario para la deserialización de JSON por Spring)
+    public ReplyNotificationData() {
+    }
 
-    public String getPostTitle() { return postTitle; }
-    public void setPostTitle(String postTitle) { this.postTitle = postTitle; }
+    // Constructor con todos los argumentos (ESTE ES EL QUE FALTABA O ESTABA MAL)
+    public ReplyNotificationData(String recipientEmail, String postTitle, String replyAuthorName, String replyContent) {
+        this.recipientEmail = recipientEmail;
+        this.postTitle = postTitle;
+        this.replyAuthorName = replyAuthorName;
+        this.replyContent = replyContent;
+    }
 
-    public String getReplyAuthorName() { return replyAuthorName; }
-    public void setReplyAuthorName(String replyAuthorName) { this.replyAuthorName = replyAuthorName; }
+    // Getters
+    public String getRecipientEmail() {
+        return recipientEmail;
+    }
 
-    public String getReplyContent() { return replyContent; }
-    public void setReplyContent(String replyContent) { this.replyContent = replyContent; }
+    public String getPostTitle() {
+        return postTitle;
+    }
+
+    public String getReplyAuthorName() {
+        return replyAuthorName;
+    }
+
+    public String getReplyContent() {
+        return replyContent;
+    }
+
+    // Setters (pueden ser útiles, aunque para DTOs de entrada a veces no se necesitan)
+    public void setRecipientEmail(String recipientEmail) {
+        this.recipientEmail = recipientEmail;
+    }
+
+    public void setPostTitle(String postTitle) {
+        this.postTitle = postTitle;
+    }
+
+    public void setReplyAuthorName(String replyAuthorName) {
+        this.replyAuthorName = replyAuthorName;
+    }
+
+    public void setReplyContent(String replyContent) {
+        this.replyContent = replyContent;
+    }
 }

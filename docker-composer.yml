@@ -1,0 +1,49 @@
+# Versión de la sintaxis de Docker Compose
+version: '3.8'
+
+# Definición de los servicios (tus microservicios)
+services:
+  # Servicio para el microservicio de notificaciones
+  notifications-service:
+    build:
+      context: ./foro-hub-notifications-service # Ruta a la carpeta de tu microservicio de notificaciones
+      dockerfile: Dockerfile # Nombre del Dockerfile dentro de esa carpeta
+    container_name: foro-hub-notifications-service # Nombre del contenedor Docker
+    ports:
+      - "8080:8080" # Mapea el puerto 8080 del host al puerto 8080 del contenedor
+    networks:
+      - foro-hub-network # Conecta este servicio a la red interna
+    environment:
+      # Variables de entorno para el microservicio de notificaciones
+      # Docker Compose leerá estas variables del entorno donde se ejecuta.
+      # Asegúrate de que los nombres de las variables coincidan con tus secretos de GitHub.
+      SERVICE_TO_SERVICE_SECRET: ${SERVICE_TO_SERVICE_SECRET} # ¡Lee del entorno!
+      INFOALURAFORO_PASSWORD: ${INFOALURAFORO_PASSWORD} # ¡Lee del entorno!
+
+  # Servicio para el microservicio de autenticación
+  auth-service:
+    build:
+      context: ./foro-hub-auth-service # Ruta a la carpeta de tu microservicio de autenticación
+      dockerfile: Dockerfile # Nombre del Dockerfile dentro de esa carpeta
+    container_name: foro-hub-auth-service # Nombre del contenedor Docker
+    ports:
+      - "8081:8081" # Mapea el puerto 8081 del host al puerto 8081 del contenedor (para evitar conflicto con 8080)
+    networks:
+      - foro-hub-network # Conecta este servicio a la misma red interna
+    depends_on:
+      # Opcional: Si auth-service necesita que notifications-service esté listo para iniciar
+      # Esto solo controla el orden de inicio, no la disponibilidad de la API.
+      - notifications-service
+    environment:
+      # Variables de entorno para el microservicio de autenticación
+      # Asegúrate de que estos valores coincidan con los de tu application.properties
+      # y que el secreto sea el mismo que en notifications-service.
+      # ¡IMPORTANTE! Usar la URL pública de Render si auth-service accede vía internet.
+      MICROSERVICE_NOTIFICATION_URL: ${MICROSERVICE_NOTIFICATION_URL} # <--- ¡AHORA LEE DEL ENTORNO!
+      SERVICE_TO_SERVICE_SECRET: ${SERVICE_TO_SERVICE_SECRET} # ¡Lee del entorno!
+      INFOALURAFORO_PASSWORD: ${INFOALURAFORO_PASSWORD} # ¡Si la necesitas aquí también, lee del entorno!
+
+# Definición de las redes internas
+networks:
+  foro-hub-network:
+    driver: bridge # Crea una red bridge para la comunicación entre los servicios

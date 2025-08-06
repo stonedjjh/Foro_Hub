@@ -75,7 +75,7 @@ public class ForoNotificationService {
 
             helper.setFrom(fromEmail);
             helper.setTo(recipientEmail);
-            helper.setSubject("¡Bienvenido a Foro Hub!");
+            helper.setSubject("¡Bienvenido a Foro Alura(no oficial)!");
 
             Context context = new Context();
             context.setVariable("username", username);

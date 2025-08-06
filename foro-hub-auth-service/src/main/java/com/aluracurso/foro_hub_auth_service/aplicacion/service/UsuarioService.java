@@ -1,12 +1,14 @@
 package com.aluracurso.foro_hub_auth_service.aplicacion.service;
 
 import com.aluracurso.foro_hub_auth_service.aplicacion.dto.DatosActualizarUsuarioDTO;
+import com.aluracurso.foro_hub_auth_service.aplicacion.dto.DatosUsuarioBienvenida;
 import com.aluracurso.foro_hub_auth_service.aplicacion.dto.UsuarioDTO;
 import com.aluracurso.foro_hub_auth_service.dominio.exceptions.CorreoElectronicoDuplicadoException;
 import com.aluracurso.foro_hub_auth_service.dominio.exceptions.PerfilNoEncontradoException;
 import com.aluracurso.foro_hub_auth_service.dominio.perfil.PerfilRepository;
 import com.aluracurso.foro_hub_auth_service.dominio.usuario.Usuario;
 import com.aluracurso.foro_hub_auth_service.dominio.usuario.UsuarioRepository;
+
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page; // Importado para la paginación
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.client.WebClient; // Importar WebClient
+import reactor.core.publisher.Mono; // Importar Mono
 
 
 import java.util.Optional;
@@ -43,6 +48,12 @@ public class UsuarioService {
         return sb.toString();
     }
 
+    /**
+     * Registra un nuevo usuario en el sistema.
+     * Genera una contraseña aleatoria y la envía al servicio de notificaciones.
+     * @param usuarioDTO DTO con los datos del nuevo usuario.
+     * @return El usuario guardado.
+     */
     public Usuario guardar(UsuarioDTO usuarioDTO) {
         var existe = this.buscarPorCorreoElectronico(usuarioDTO.correoElectronico());
         if(existe.isPresent()){
@@ -62,7 +73,38 @@ public class UsuarioService {
                     clave,
                     roles);
 
-       return usuarioRepository.guardar(usuario);
+        Usuario usuarioPersistido = usuarioRepository.guardar(usuario); // Guardar el usuario
+
+        // Enviar notificación de bienvenida al microservicio de notificaciones
+        sendWelcomeNotificationToMicroservice(usuarioPersistido.getCorreoElectronico(), usuarioPersistido.getNombre(), clave); // Enviar la contraseña SIN codificar
+
+        return usuarioPersistido;
+    }
+
+    /**
+     * Realiza la llamada HTTP al microservicio de notificaciones para enviar el correo de bienvenida.
+     * @param email Correo del usuario.
+     * @param username Nombre del usuario.
+     * @param password Contraseña generada (sin codificar).
+     */
+    private void sendWelcomeNotificationToMicroservice(String email, String username, String password) {
+        // Objeto DTO para la petición al microservicio de notificaciones
+        DatosUsuarioBienvenida datosBienvenida = new DatosUsuarioBienvenida(email, username, password);
+
+        WebClient client = WebClient.create(notificationServiceUrl);
+
+        client.post()
+                .uri("/notificaciones/bienvenida") // Endpoint del microservicio de notificaciones
+                .contentType(MediaType.APPLICATION_JSON)
+                // Añadir la cabecera X-Service-Token con el secreto compartido
+                .header("X-Service-Token", serviceToServiceSecret)
+                .body(Mono.just(datosBienvenida), DatosUsuarioBienvenida.class)
+                .retrieve()
+                .bodyToMono(Void.class)
+                .subscribe(
+                        response -> System.out.println("Notificación de bienvenida enviada al microservicio."),
+                        error -> System.err.println("Error al enviar notificación de bienvenida: " + error.getMessage())
+                );
     }
 
     public void eliminar(Long id){

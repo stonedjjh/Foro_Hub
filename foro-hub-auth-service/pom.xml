@@ -85,6 +85,12 @@
 			<version>2.8.9</version>
 		</dependency>
 
+        <!-- AÑADE ESTA DEPENDENCIA PARA WebClient y Mono -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+
 	</dependencies>
 
 	<build>
