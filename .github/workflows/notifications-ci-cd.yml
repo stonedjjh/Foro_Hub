@@ -57,7 +57,8 @@ jobs:
         # Construye la imagen usando el Dockerfile en la carpeta del servicio.
         # La etiqueta incluye el nombre del repositorio y el nombre del servicio.
         working-directory: ./foro-hub-notifications-service
-        run: |         
+        run: |
+          docker build -t ghcr.io/${{ github.repository_owner }}/foro-hub-notifications-service:latest .
           
 
       - name: Subir la imagen Docker a GitHub Container Registry
