@@ -29,7 +29,6 @@ jobs:
           echo "Contenido de ${{ github.workspace }}:"
           ls -R ${{ github.workspace }}
           echo "Directorio actual: $(pwd)"
-          echo "Contenido del directorio actual:"
           ls -R .
 
       - name: Configurar Java 17 con Maven
@@ -54,12 +53,19 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Construir y etiquetar la imagen Docker
-        # Construye la imagen usando el Dockerfile en la carpeta del servicio.
-        # La etiqueta incluye el nombre del repositorio y el nombre del servicio.
-        working-directory: ./foro-hub-notifications-service
+        # 🔑 CAMBIO CLAVE: Ejecutar este paso desde el directorio del microservicio.
+        # Esto hace que el contexto de construcción de Docker sea la carpeta del microservicio.
+        working-directory: ./foro-hub-notifications-service # <-- ¡Asegúrate de que esta línea esté presente!
         run: |
+          # 🚨 CORRECCIÓN CRÍTICA AQUÍ:
+          # El Dockerfile ya está en el directorio de trabajo actual (gracias a 'working-directory').
+          # El '.' al final del comando 'docker build' indica que el contexto de construcción
+          # es el directorio actual, que ahora es 'foro-hub-notifications-service/'.
+          # Por lo tanto, el Dockerfile buscará 'target/*.jar' dentro de esa carpeta.
           docker build -t ghcr.io/${{ github.repository_owner }}/foro-hub-notifications-service:latest .
-          
+          # ^^^ ¡ASEGÚRATE DE QUE ESTA LÍNEA NO TENGA '-f foro-hub-notifications-service/Dockerfile'!
+          #     Solo debe terminar con un punto '.'
+
 
       - name: Subir la imagen Docker a GitHub Container Registry
         # Empuja la imagen construida al GHCR.
