@@ -23,7 +23,7 @@ RUN mvn package
 # Esta etapa utiliza un JRE más ligero para ejecutar la aplicación.
 # Se copia solo el JAR de la etapa de construcción anterior.
 #----------------------------------------------------------------------
-FROM openjdk:17-jre-slim-buster
+FROM openjdk:17-jre-slim
 
 # Establece un argumento para el nombre del archivo JAR
 ARG JAR_FILE=target/foro-hub-auth-service-0.0.1-SNAPSHOT.jar
