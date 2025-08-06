@@ -56,8 +56,8 @@ jobs:
       - name: Construir y etiquetar la imagen Docker
         # Construye la imagen usando el Dockerfile en la carpeta del servicio.
         # La etiqueta incluye el nombre del repositorio y el nombre del servicio.
-        run: |
-          docker build -t ghcr.io/${{ github.repository_owner }}/foro-hub-notifications-service:latest -f foro-hub-notifications-service/Dockerfile .
+        run: |          
+          docker build -t ghcr.io/${{ github.repository_owner }}/foro-hub-notifications-service:latest -f foro-hub-notifications-service/Dockerfile ./foro-hub-notifications-service
 
       - name: Subir la imagen Docker a GitHub Container Registry
         # Empuja la imagen construida al GHCR.
@@ -73,4 +73,4 @@ jobs:
       - name: Activar redespliegue en Render
         # Envía una petición POST al webhook de despliegue de Render.
         # Asegúrate de configurar este secreto en tu repositorio de GitHub.
-        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL_NOTIFICATIONS }}"
+        run: curl -X POST "${{ secrets.RENDER_HOCK_FORO }}"
