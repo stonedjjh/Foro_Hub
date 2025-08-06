@@ -1,9 +1,52 @@
 # Versión de la sintaxis de Docker Compose
 version: '3.8'
 
-# Definición de los servicios (tus microservicios)
+# Definición de los servicios (tus microservicios y la base de datos)
 services:
-  # Servicio para el microservicio de notificaciones
+  # Servicio para la base de datos MySQL
+  db:
+    image: mysql:8.0 # Usamos la imagen oficial de MySQL 8.0
+    container_name: foro-hub-auth-db # Nombre del contenedor para la base de datos
+    environment:
+      # Variables de entorno para configurar MySQL
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD} # Contraseña del usuario root de MySQL (¡usa un secreto!)
+      MYSQL_DATABASE: ${MYSQL_DATABASE}         # Nombre de la base de datos que creará MySQL
+    ports:
+      - "3306:3306" # Mapea el puerto 3306 del host al puerto 3306 del contenedor (opcional, para acceder desde fuera)
+    volumes:
+      # Volumen para la persistencia de datos de MySQL.
+      # Esto asegura que tus datos no se pierdan si el contenedor se detiene o se elimina.
+      - db_data:/var/lib/mysql
+    networks:
+      - foro-hub-network # Conecta este servicio a la red interna
+
+  # Servicio para el microservicio de autenticación
+  auth-service:
+    build:
+      context: ./foro-hub-auth-service # Ruta a la carpeta de tu microservicio de autenticación
+      dockerfile: Dockerfile # Nombre del Dockerfile dentro de esa carpeta
+    container_name: foro-hub-auth-service # Nombre del contenedor Docker
+    ports:
+      - "8081:8081" # Mapea el puerto 8081 del host al puerto 8081 del contenedor
+    networks:
+      - foro-hub-network # Conecta este servicio a la misma red interna
+    depends_on:
+      # Asegura que el servicio 'db' se inicie antes que 'auth-service'
+      - db
+    environment:
+      # Variables de entorno para el microservicio de autenticación
+      # Spring Boot usará estas variables para conectarse a la base de datos.
+      # 'db' es el nombre del servicio de la base de datos en Docker Compose.
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/${MYSQL_DATABASE}?useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update # O 'validate' en producción
+      SPRING_FLYWAY_ENABLED: true # Asegura que Flyway se ejecute
+      # URL del microservicio de notificaciones (si lo necesitas)
+      MICROSERVICE_NOTIFICATION_URL: http://notifications-service:8080 # <-- URL interna de Docker Compose
+      SERVICE_TO_SERVICE_SECRET: ${SERVICE_TO_SERVICE_SECRET}
+
+  # Servicio para el microservicio de notificaciones (AÑADIDO DE NUEVO)
   notifications-service:
     build:
       context: ./foro-hub-notifications-service # Ruta a la carpeta de tu microservicio de notificaciones
@@ -15,33 +58,12 @@ services:
       - foro-hub-network # Conecta este servicio a la red interna
     environment:
       # Variables de entorno para el microservicio de notificaciones
-      # Docker Compose leerá estas variables del entorno donde se ejecuta.
-      # Asegúrate de que los nombres de las variables coincidan con tus secretos de GitHub.
       SERVICE_TO_SERVICE_SECRET: ${SERVICE_TO_SERVICE_SECRET} # ¡Lee del entorno!
       INFOALURAFORO_PASSWORD: ${INFOALURAFORO_PASSWORD} # ¡Lee del entorno!
 
-  # Servicio para el microservicio de autenticación
-  auth-service:
-    build:
-      context: ./foro-hub-auth-service # Ruta a la carpeta de tu microservicio de autenticación
-      dockerfile: Dockerfile # Nombre del Dockerfile dentro de esa carpeta
-    container_name: foro-hub-auth-service # Nombre del contenedor Docker
-    ports:
-      - "8081:8081" # Mapea el puerto 8081 del host al puerto 8081 del contenedor (para evitar conflicto con 8080)
-    networks:
-      - foro-hub-network # Conecta este servicio a la misma red interna
-    depends_on:
-      # Opcional: Si auth-service necesita que notifications-service esté listo para iniciar
-      # Esto solo controla el orden de inicio, no la disponibilidad de la API.
-      - notifications-service
-    environment:
-      # Variables de entorno para el microservicio de autenticación
-      # Asegúrate de que estos valores coincidan con los de tu application.properties
-      # y que el secreto sea el mismo que en notifications-service.
-      # ¡IMPORTANTE! Usar la URL pública de Render si auth-service accede vía internet.
-      MICROSERVICE_NOTIFICATION_URL: ${MICROSERVICE_NOTIFICATION_URL} # <--- ¡AHORA LEE DEL ENTORNO!
-      SERVICE_TO_SERVICE_SECRET: ${SERVICE_TO_SERVICE_SECRET} # ¡Lee del entorno!
-      INFOALURAFORO_PASSWORD: ${INFOALURAFORO_PASSWORD} # ¡Si la necesitas aquí también, lee del entorno!
+# Definición de los volúmenes para persistencia
+volumes:
+  db_data: # Volumen para los datos de MySQL
 
 # Definición de las redes internas
 networks:
