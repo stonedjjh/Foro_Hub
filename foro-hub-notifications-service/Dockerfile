@@ -29,7 +29,7 @@ FROM openjdk:17-slim
 ARG JAR_FILE=target/foro-hub-auth-service-0.0.1-SNAPSHOT.jar
 
 # Copia el archivo JAR desde la etapa de construcción (builder)
-COPY --from=builder /app/${JAR_FILE} app.jar
+COPY --from=builder /app/target/foro-hub-notifications-service-0.0.1-SNAPSHOT.jar app.jar
 
 # Expone el puerto por defecto de Spring Boot (8080)
 EXPOSE 8080
