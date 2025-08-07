@@ -2,7 +2,7 @@
 # Etapa 1: Construir la aplicación Spring Boot
 # Esta etapa utiliza un JDK para compilar el código y generar el JAR.
 #----------------------------------------------------------------------
-FROM maven:3.8.7-openjdk-17-slim AS builder
+FROM maven:3.8-openjdk-17-slim AS builder
 
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
