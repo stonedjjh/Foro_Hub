@@ -75,3 +75,15 @@ jobs:
 
       - name: Subir la imagen Docker a GitHub Container Registry
         run: docker push ghcr.io/${{ github.repository_owner }}/foro-hub-auth-service:latest
+
+  deploy-to-render:
+    needs: build-test-and-push # Este trabajo depende del éxito del trabajo anterior
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Activar redespliegue en Render
+        # Envía una petición POST al webhook de despliegue de Render.
+        # Asegúrate de configurar este secreto en tu repositorio de GitHub.
+        run: curl -X POST "${{ secrets.RENDER_HOCK_AUTH_SERVICE }}"
