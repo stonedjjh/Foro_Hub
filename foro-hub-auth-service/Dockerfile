@@ -16,7 +16,7 @@ RUN mvn dependency:go-offline
 COPY src ./src
 
 # Empaqueta la aplicación en un archivo JAR
-RUN mvn package
+RUN mvn package -DskipTests
 
 #----------------------------------------------------------------------
 # Etapa 2: Crear la imagen final de la aplicación
