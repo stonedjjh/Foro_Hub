@@ -69,7 +69,7 @@ public class UsuarioController {
     @Operation(summary = "Crea un nuevo usuario",
             description = "Este endpoint permite crear un nuevo usuario con uno o más roles asignados.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Usuario creado exitosamente",
+                    @ApiResponse(responseCode = "200", description = "Usuario creado exitosamente. Por favor, revisa tu correo electrónico para ver tu nombre de usuario y la contraseña temporal.",
                             content = @Content(schema = @Schema(implementation = DatosUsuarioDTO.class))),
                     @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
                     @ApiResponse(responseCode = "409", description = "El correo electrónico ya está registrado")

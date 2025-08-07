@@ -33,6 +33,9 @@ public class UsuarioService {
     private PerfilRepository perfilRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    // Inyecta el servicio de notificaciones directamente
+    @Autowired
+    private ForoNotificationService notificationService;
 
     // Inyección de las variables de configuración desde application.properties
     @Value("${microservice.notification.url}")
@@ -62,18 +65,17 @@ public class UsuarioService {
      */
     public Usuario guardar(UsuarioDTO usuarioDTO) {
         var existe = this.buscarPorCorreoElectronico(usuarioDTO.correoElectronico());
-        if(existe.isPresent()){
-            throw new CorreoElectronicoDuplicadoException("El correo electrónico " + usuarioDTO.correoElectronico() + " ya esta registrado");
+        if (existe.isPresent()) {
+            throw new CorreoElectronicoDuplicadoException("El correo electrónico " + usuarioDTO.correoElectronico() + " ya está registrado");
         }
 
         String clave = generateRandomString(8, this.charSet);
         System.out.println(clave);
-        clave=passwordEncoder.encode(clave);
-        var roles=usuarioDTO.idRol().stream()
-                .map(r-> {
-                    return perfilRepository.encontrarPorId(r)
-                            .orElseThrow(() ->new PerfilNoEncontradoException(r.toString()));
-                }).toList();
+        clave = passwordEncoder.encode(clave);
+        var roles = usuarioDTO.idRol().stream()
+                .map(r -> perfilRepository.encontrarPorId(r)
+                        .orElseThrow(() -> new PerfilNoEncontradoException(r.toString())))
+                .toList();
         var usuario = new Usuario(usuarioDTO.nombre(),
                 usuarioDTO.correoElectronico(),
                 clave,
@@ -81,36 +83,12 @@ public class UsuarioService {
 
         Usuario usuarioPersistido = usuarioRepository.guardar(usuario); // Guardar el usuario
 
-        // Enviar notificación de bienvenida al microservicio de notificaciones
-        sendWelcomeNotificationToMicroservice(usuarioPersistido.getCorreoElectronico(), usuarioPersistido.getNombre(), clave); // Enviar la contraseña SIN codificar
-
+        notificationService.sendWelcomeNotification(
+                usuarioPersistido.getCorreoElectronico(),
+                usuarioPersistido.getNombre(),
+                clave // Importante: la clave debe ser la original, sin codificar.
+        );
         return usuarioPersistido;
-    }
-
-    /**
-     * Realiza la llamada HTTP al microservicio de notificaciones para enviar el correo de bienvenida.
-     * @param email Correo del usuario.
-     * @param username Nombre del usuario.
-     * @param password Contraseña generada (sin codificar).
-     */
-    private void sendWelcomeNotificationToMicroservice(String email, String username, String password) {
-        // Objeto DTO para la petición al microservicio de notificaciones
-        DatosUsuarioBienvenida datosBienvenida = new DatosUsuarioBienvenida(email, username, password);
-
-        WebClient client = WebClient.create(notificationServiceUrl);
-
-        client.post()
-                .uri("/notificaciones/bienvenida") // Endpoint del microservicio de notificaciones
-                .contentType(MediaType.APPLICATION_JSON)
-                // Añadir la cabecera X-Service-Token con el secreto compartido
-                .header("X-Service-Token", serviceToServiceSecret)
-                .body(Mono.just(datosBienvenida), DatosUsuarioBienvenida.class)
-                .retrieve()
-                .bodyToMono(Void.class)
-                .subscribe(
-                        response -> System.out.println("Notificación de bienvenida enviada al microservicio."),
-                        error -> System.err.println("Error al enviar notificación de bienvenida: " + error.getMessage())
-                );
     }
 
     public void eliminar(Long id){

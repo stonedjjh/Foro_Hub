@@ -8,7 +8,6 @@ import com.aluracurso.foro_hub.domain.curso.exception.CursoNoEncontradoException
 import com.aluracurso.foro_hub.domain.topico.exception.TopicoDuplicadoException;
 import com.aluracurso.foro_hub.domain.topico.exception.TopicoNoEncontradoException;
 import com.aluracurso.foro_hub.domain.curso.CursoRepository;
-
 import com.aluracurso.foro_hub.domain.usuario.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -33,12 +32,16 @@ public class TopicoApplicationService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    // Se inyecta el nuevo servicio de notificaciones
+    @Autowired
+    private NotificationService notificationService;
+
     private Optional<List<DatosTopicoDTO>> convertirDTO(List<Topico> listaTopico){
         if(!listaTopico.isEmpty())
             return Optional.of(listaTopico.stream().map(
-                    DatosTopicoDTO::new
-            )
-                .toList());
+                            DatosTopicoDTO::new
+                    )
+                    .toList());
         return Optional.empty();
     }
 
@@ -83,13 +86,17 @@ public class TopicoApplicationService {
             // Buscar la entidad Usuario completa en la base de datos
             var usuarioAutenticado = usuarioRepository.buscarPorCorreoElectronico(userDetails.getUsername());
 
-            if (usuarioAutenticado == null) {
+            if (usuarioAutenticado.isEmpty()) {
                 // Manejar el caso en que no se encuentre el usuario
                 throw new RuntimeException("Usuario no encontrado en la base de datos.");
             }
             Long idUsuario = usuarioAutenticado.get().getId();
             topico.setAutor(idUsuario);
             topicoRepository.save(topico);
+
+            // Llama al servicio de notificaciones después de guardar el tópico
+            notificationService.notifyNewTopic(topico);
+
             return topico;
         } catch (DataIntegrityViolationException e) {
             throw new TopicoDuplicadoException("El título o mensaje del tópico ya existe.");
@@ -103,10 +110,10 @@ public class TopicoApplicationService {
         Topico topico = topicoRepository.findById(id)
                 .orElseThrow(() -> new TopicoNoEncontradoException("Tópico con ID " + id + " no encontrado."));
         try {
-                topico.setTitulo(topicoActualizacionDTO.titulo());
-                topico.setMensaje(topicoActualizacionDTO.mensaje());
-                topico.setStatus(topicoActualizacionDTO.status());
-                topicoRepository.save(topico);
+            topico.setTitulo(topicoActualizacionDTO.titulo());
+            topico.setMensaje(topicoActualizacionDTO.mensaje());
+            topico.setStatus(topicoActualizacionDTO.status());
+            topicoRepository.save(topico);
         }        catch (DataIntegrityViolationException e) {
             throw new TopicoDuplicadoException("El título o mensaje del tópico ya existe.");
         }
@@ -119,7 +126,4 @@ public class TopicoApplicationService {
                 .orElseThrow(() -> new TopicoNoEncontradoException("Tópico con ID " + id + " no encontrado."));
         topicoRepository.delete(topico);
     }
-
-
-
 }

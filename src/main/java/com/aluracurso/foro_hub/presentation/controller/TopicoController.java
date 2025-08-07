@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 import java.util.List;
@@ -70,7 +71,7 @@ public class TopicoController {
      *
      * @return Una lista de DTOs de los 10 tópicos más recientes.
      */
-    @GetMapping("/primeros10topicos")
+    @GetMapping("/topicosmasrecientes")
     @Operation(summary = "Obtiene los 10 tópicos más recientes",
             description = "Devuelve una lista de los 10 primeros tópicos ordenados por fecha de creación de manera descendente.",
             responses = {
@@ -107,15 +108,17 @@ public class TopicoController {
      * @param topicoActualizacionDTO El DTO con los datos para la actualización.
      * @return ResponseEntity con los datos del tópico actualizado y un estado HTTP 200 OK.
      */
+
     @PutMapping("/{id}")
     @Operation(summary = "Actualiza un tópico por su ID",
-            description = "Permite a un usuario actualizar el título o el mensaje de un tópico existente.",
+            description = "Permite a un usuario actualizar el título o el mensaje de un tópico existente que haya creado.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Tópico actualizado exitosamente",
                             content = @Content(schema = @Schema(implementation = DatosTopicoDTO.class))),
                     @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
                     @ApiResponse(responseCode = "404", description = "El tópico con el ID especificado no fue encontrado")
             })
+    @PreAuthorize("#id == principal.id")
     public ResponseEntity<DatosTopicoDTO> actualizarTopicoPorId(
             @Parameter(description = "ID del tópico a actualizar") @PathVariable Long id,
             @Valid @RequestBody TopicoActualizacionDTO topicoActualizacionDTO) {
@@ -129,6 +132,8 @@ public class TopicoController {
      * @param id El ID del tópico a eliminar.
      * @return ResponseEntity con un mensaje de éxito y un estado HTTP 200 OK.
      */
+
+
     @DeleteMapping("/{id}")
     @Operation(summary = "Elimina un tópico por su ID",
             description = "Elimina un tópico de la base de datos de manera lógica, marcándolo como inactivo.",
@@ -136,6 +141,7 @@ public class TopicoController {
                     @ApiResponse(responseCode = "200", description = "Tópico eliminado exitosamente"),
                     @ApiResponse(responseCode = "404", description = "El tópico con el ID especificado no fue encontrado")
             })
+    @PreAuthorize("hasRole('ADMINISTRADOR') or #id == principal.id")
     public ResponseEntity<String> elminarTopicoPorId(
             @Parameter(description = "ID del tópico a eliminar") @PathVariable Long id) {
         topicoApplicationService.eliminarTopico(id);
