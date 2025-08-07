@@ -1,3 +1,3 @@
-ALTER TABLE topico
-ADD CONSTRAINT CK_topico UNIQUE (titulo,mensaje);
+ALTER TABLE topicos
+ADD CONSTRAINT CK_topicos UNIQUE (titulo,mensaje);
 

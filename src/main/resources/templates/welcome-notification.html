@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Bienvenido a Foro Alura</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border-top: 5px solid #007bff;
+        }
+        .header {
+            background-color: #ffffff;
+            color: #333333;
+            padding: 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+            line-height: 1.6;
+            color: #555555;
+        }
+        .footer {
+            background-color: #f0f0f0;
+            color: #777777;
+            text-align: center;
+            padding: 15px;
+            font-size: 12px;
+        }
+        h1 {
+            color: #007bff;
+            margin: 0;
+            font-size: 28px;
+        }
+        p {
+            margin: 0 0 15px;
+        }
+        .credentials-box {
+            background-color: #f9f9f9;
+            border-left: 5px solid #007bff;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .credentials-box p {
+            margin: 5px 0;
+        }
+        strong {
+            color: #333333;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>¡Bienvenido a Foro Hub ALura(No oficial)!</h1>
+    </div>
+    <div class="content">
+        <p>Hola,</p>
+        <p>Tu cuenta ha sido creada con éxito. A continuación te dejamos tus credenciales para que puedas acceder y participar en la comunidad:</p>
+
+        <div class="credentials-box">
+            <p><strong>Usuario:</strong> <span th:text="${username}"></span></p>
+            <p><strong>Contraseña:</strong> <span th:text="${password}"></span></p>
+        </div>
+
+        <p>Te recomendamos cambiar tu contraseña en tu primer inicio de sesión para mayor seguridad. ¡Estamos emocionados de tenerte con nosotros!</p>
+    </div>
+    <div class="footer">
+        <p>&copy; 2025 Foro Alura(No oficial). Creado con fines educativos.</p>
+    </div>
+</div>
+</body>
+</html>

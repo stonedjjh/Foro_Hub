@@ -1,4 +1,4 @@
-INSERT INTO curso (nombre, categoria) VALUES
+INSERT INTO cursos (nombre, categoria) VALUES
 ('ChatGPT y programación: aumenta tu productividad', 'Programación'),
 ('ChatGPT: optimizando la calidad de los resultados', 'Programación'),
 ('Java: aplicando la Orientación a Objetos', 'Programación'),
