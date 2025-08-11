@@ -97,13 +97,11 @@ public class RespuestaController {
     @PutMapping("/{id}")
     @Operation(summary = "Actualiza una respuesta existente", description = "Actualiza el mensaje de una respuesta por su ID.")
     @ApiResponse(responseCode = "200", description = "Respuesta actualizada exitosamente.", content = @Content(schema = @Schema(implementation = DetalleRespuestaDTO.class)))
-    @ApiResponse(responseCode = "404", description = "La respuesta con el ID especificado no existe.")
     @ApiResponse(responseCode = "403", description = "Acceso no autorizado: el usuario no es el autor de la respuesta ni un administrador.")
+    @ApiResponse(responseCode = "404", description = "La respuesta con el ID especificado no existe.")
     public ResponseEntity<DetalleRespuestaDTO> actualizarRespuesta(@PathVariable Long id, @RequestBody ActualizarRespuestaDTO actualizarRespuestaDTO) {
         Respuesta respuestaActualizada = new Respuesta();
-        respuestaActualizada.setMensaje(actualizarRespuestaDTO.mensaje());
-
-        Optional<Respuesta> resultado = respuestaService.actualizar(id, respuestaActualizada);
+        Optional<Respuesta> resultado = respuestaService.actualizar(id, actualizarRespuestaDTO.mensaje());
 
         return resultado.map(respuesta -> {
             DetalleRespuestaDTO detalleRespuesta = new DetalleRespuestaDTO(
@@ -126,6 +124,7 @@ public class RespuestaController {
     @PutMapping("/{id}/solucion")
     @Operation(summary = "Marca una respuesta como solución", description = "Establece una respuesta como la solución de un tópico.")
     @ApiResponse(responseCode = "200", description = "Respuesta marcada como solución exitosamente.", content = @Content(schema = @Schema(implementation = DetalleRespuestaDTO.class)))
+    @ApiResponse(responseCode = "400", description = "Petición inválida: La respuesta ya ha sido marcada como la solución del tópico.")
     @ApiResponse(responseCode = "404", description = "La respuesta con el ID especificado no existe.")
     @ApiResponse(responseCode = "403", description = "Acceso no autorizado: el usuario no es el autor de la respuesta ni un administrador.")
     public ResponseEntity<DetalleRespuestaDTO> marcarComoSolucion(@PathVariable Long id) {

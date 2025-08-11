@@ -71,7 +71,7 @@ public class Respuesta {
      * este campo en las sentencias INSERT y UPDATE. Esto es una buena práctica para
      * evitar conflictos con los valores generados por la base de datos.
      */
-    @Column(insertable = false)
+    @Column(insertable = false, updatable = false)
     private LocalDateTime fechaCreacion;
 
     @Override

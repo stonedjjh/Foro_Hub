@@ -2,9 +2,11 @@ package com.aluracurso.foro_hub.infrastructure.exception;
 
 import com.aluracurso.foro_hub.domain.curso.exception.CursoNoEncontradoException;
 import com.aluracurso.foro_hub.domain.perfil.exception.PerfilNoEncontradoException;
+import com.aluracurso.foro_hub.domain.respuesta.exception.SolucionYaMarcadaException;
 import com.aluracurso.foro_hub.domain.topico.exception.TopicoDuplicadoException;
 import com.aluracurso.foro_hub.domain.topico.exception.TopicoNoEncontradoException;
 import com.aluracurso.foro_hub.domain.usuario.exception.CorreoElectronicoDuplicadoException;
+import com.aluracurso.foro_hub.infrastructure.persistence.exception.RespuestaNoEncontradaException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -178,6 +180,34 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Void> EntityNotFoundException(EntityNotFoundException ex) {
         return ResponseEntity.notFound().build();
+    }
+
+    /**
+     * Maneja la excepción ExcepcionSolucionYaMarcada.
+     * La anotación @ExceptionHandler especifica qué excepción este método tratará.
+     *
+     * @param ex El objeto de excepción capturado.
+     * @return Un ResponseEntity con un mensaje de error y el estado HTTP 400.
+     */
+    @ExceptionHandler(SolucionYaMarcadaException.class)
+    public ResponseEntity<String> manejarExcepcionSolucionYaMarcada(SolucionYaMarcadaException ex) {
+        // Retorna un ResponseEntity con el mensaje de la excepción y el estado HTTP BAD_REQUEST (400).
+        // Un estado 400 es apropiado porque la petición del cliente es inválida
+        // con base en el estado actual del recurso.
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Nuevo método para manejar la excepción RespuestaNoEncontradaException.
+     *
+     * @param ex El objeto de excepción capturado.
+     * @return Un ResponseEntity con un mensaje de error y el estado HTTP 404 (Not Found).
+     */
+    @ExceptionHandler(RespuestaNoEncontradaException.class)
+    public ResponseEntity<String> manejarRespuestaNoEncontrada(RespuestaNoEncontradaException ex) {
+        // Retorna un ResponseEntity con el mensaje de la excepción y el estado HTTP NOT_FOUND (404).
+        // Este estado indica que el recurso solicitado no pudo ser encontrado.
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     /**

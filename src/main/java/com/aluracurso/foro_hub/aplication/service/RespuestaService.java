@@ -2,6 +2,7 @@ package com.aluracurso.foro_hub.aplication.service;
 
 import com.aluracurso.foro_hub.domain.respuesta.Respuesta;
 import com.aluracurso.foro_hub.domain.respuesta.RespuestaRepository; // Usamos el repositorio de dominio
+import com.aluracurso.foro_hub.domain.respuesta.exception.SolucionYaMarcadaException;
 import com.aluracurso.foro_hub.domain.topico.TopicoRepository;
 import com.aluracurso.foro_hub.domain.topico.exception.TopicoNoEncontradoException;
 import com.aluracurso.foro_hub.domain.usuario.UsuarioRepository;
@@ -52,7 +53,6 @@ public class RespuestaService {
         respuesta.setSolucion(false);
         var usuario = usuarioService.obtenerUsuarioAutenticado();
         respuesta.setAutor(usuario);
-        System.out.println(usuario);
         Optional<Respuesta> respuestaGuardada = respuestaRepository.guardar(respuesta);
         return respuestaGuardada;
     }
@@ -73,14 +73,10 @@ public class RespuestaService {
      * del repositorio de dominio devuelve un Optional<Respuesta>.
      *
      * @param id El ID de la respuesta a actualizar.
-     * @param respuestaActualizada La entidad Respuesta con el nuevo mensaje.
      * @return Un Optional con la respuesta actualizada, o vacío si no se encuentra.
      */
-    public Optional<Respuesta> actualizar(Long id, Respuesta respuestaActualizada) {
-        return respuestaRepository.buscarPorId(id).flatMap(respuesta -> {
-            respuesta.setMensaje(respuestaActualizada.getMensaje());
-            return respuestaRepository.guardar(respuesta);
-        });
+    public Optional<Respuesta> actualizar(Long id,String mensaje) {
+           return respuestaRepository.actualizar(id, mensaje);
     }
 
     /**
@@ -94,17 +90,7 @@ public class RespuestaService {
      */
     @Transactional
     public Optional<Respuesta> marcarComoSolucion(Long id) {
-        return respuestaRepository.buscarPorId(id).flatMap(respuesta -> {
-            // Se realiza la consulta personalizada para verificar si el tópico ya tiene una solución
-            boolean yaTieneSolucion = respuestaRepository.existeSolucionParaTopico(respuesta.getTopico().getId());
-            if (yaTieneSolucion) {
-                return Optional.empty(); // Ya hay una solución, no se puede marcar otra
-            }
-
-            // Si no hay solución previa, se marca esta respuesta como la solución
-            respuesta.setSolucion(true);
-            return respuestaRepository.guardar(respuesta);
-        });
+        return respuestaRepository.marcarComoSolucion(id);
     }
 
     /**
