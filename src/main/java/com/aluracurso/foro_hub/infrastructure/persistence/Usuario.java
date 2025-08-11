@@ -35,4 +35,18 @@ public class Usuario {
     )
     private List<Perfil> perfiles;
 
+    public Usuario(Long id) {
+        this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return "Usuario{" +
+                "id=" + id +
+                ", nombre='" + nombre + '\'' +
+                ", correoElectronico='" + correoElectronico + '\'' +
+                ", contraseña='" + contraseña + '\'' +
+                ", perfiles=" + perfiles +
+                '}';
+    }
 }

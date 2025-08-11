@@ -28,16 +28,6 @@ public class JpaUsuarioRepository implements UsuarioRepository {
         usuarioPersistencia.setCorreoElectronico(usuario.getCorreoElectronico());
         usuarioPersistencia.setContraseña(usuario.getClave());
 
-   /*     // Obtiene los perfiles existentes de la base de datos y los convierte a objetos de persistencia
-        List<com.aluracurso.foro_hub_auth_service.infraestructura.persistencia.Perfil> perfilesPersistencia = usuario.getPerfiles().stream()
-                .map(perfilDominio -> {
-                    var perfilDelDominio = perfilRepository.encontrarPorNombre(perfilDominio.getNombre())
-                            .orElseThrow(() -> new RuntimeException("Perfil no encontrado: " + perfilDominio.getNombre()));
-                    return convertirPerfilAPersistencia(perfilDelDominio);
-                })
-                .collect(Collectors.toList());*/
-
-        // Transforma la lista de perfiles del dominio a una lista de perfiles de persistencia
         List<com.aluracurso.foro_hub.infrastructure.persistence.Perfil> perfilesPersistencia = usuario.getPerfiles().stream()
                 .map(this::convertirPerfilAPersistencia)
                 .collect(Collectors.toList());
@@ -107,7 +97,7 @@ public class JpaUsuarioRepository implements UsuarioRepository {
     }
 
     // Método privado para la conversión de Usuario de persistencia a dominio
-    private Usuario convertirAEntidadDominio(com.aluracurso.foro_hub.infrastructure.persistence.Usuario usuarioPersistencia) {
+    public Usuario convertirAEntidadDominio(com.aluracurso.foro_hub.infrastructure.persistence.Usuario usuarioPersistencia) {
         Usuario usuarioDominio = new Usuario(
                 usuarioPersistencia.getId(),
                 usuarioPersistencia.getNombre(),

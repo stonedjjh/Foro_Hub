@@ -52,7 +52,7 @@ public class TopicoApplicationService {
 
     public Page<DatosTopicoDTO> obtenerTopicos(Pageable paginacion){
         // Llama a findAll del repositorio, que ahora acepta Pageable y devuelve Page<Topico>
-        Page<Topico> topicos = topicoRepository.findAll(paginacion);
+        Page<Topico> topicos = topicoRepository.buscarTodos(paginacion);
         // Convierte la Page de Topico a Page de DatosTopicoDTO
         return convertirDTO(topicos);
     }
@@ -66,6 +66,8 @@ public class TopicoApplicationService {
         }
     }
 
+
+
     public Optional<List<DatosTopicoDTO>> obtener10Topicos(){
         return convertirDTO(topicoRepository.findTop10ByOrderByFechaCreacionDesc());
     }
@@ -75,55 +77,85 @@ public class TopicoApplicationService {
         return convertirDTO(topicoRepository.buscarTopicosPorTituloYAnio(titulo,anio));
     }
 
+    /**
+     * Guarda un nuevo tópico, asignando el curso y el autor autenticado.
+     * @param topico El objeto Tópico a guardar.     *
+     * @return El tópico guardado.
+     * @throws TopicoDuplicadoException si el título o mensaje ya existen.
+     * @throws CursoNoEncontradoException si el curso no se encuentra.
+     */
     @Transactional
-    public Topico guardarTopico(Topico topico, long cursoEnDTO) throws TopicoDuplicadoException, CursoNoEncontradoException  {
+    public Topico guardarTopico(Topico topico) throws TopicoDuplicadoException, CursoNoEncontradoException {
         try {
-            var curso = cursoRepository.getReferenceById(cursoEnDTO);
-            topico.setCurso(curso);
+            // Lógica de negocio y orquestación
+            var curso = cursoRepository.findById(topico.getCurso())
+                    .orElseThrow(() -> new CursoNoEncontradoException("El curso ingresado no existe."));
+
             var authentication = SecurityContextHolder.getContext().getAuthentication();
             var userDetails = (UserDetails) authentication.getPrincipal();
+            var usuario = usuarioRepository.buscarPorCorreoElectronico(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado en la base de datos."));
 
-            // Buscar la entidad Usuario completa en la base de datos
-            var usuarioAutenticado = usuarioRepository.buscarPorCorreoElectronico(userDetails.getUsername());
+            topico.setAutor(usuario.getId());
+            // Persistencia
+            Optional<Topico> topicoGuardado = topicoRepository.guardarTopico(topico);
 
-            if (usuarioAutenticado.isEmpty()) {
-                // Manejar el caso en que no se encuentre el usuario
-                throw new RuntimeException("Usuario no encontrado en la base de datos.");
-            }
-            Long idUsuario = usuarioAutenticado.get().getId();
-            topico.setAutor(idUsuario);
-            topicoRepository.save(topico);
+            // Llama al servicio de notificaciones después de guardar
+            notificationService.notifyNewTopic(topicoGuardado.get());
 
-            // Llama al servicio de notificaciones después de guardar el tópico
-            notificationService.notifyNewTopic(topico);
-
-            return topico;
+            return topicoGuardado.get();
         } catch (DataIntegrityViolationException e) {
             throw new TopicoDuplicadoException("El título o mensaje del tópico ya existe.");
-        } catch (RuntimeException e) {
-            throw new CursoNoEncontradoException("El curso ingresado no existe " + e.getMessage());
         }
     }
 
+    /**
+     * Actualiza un tópico existente. La lógica de actualización reside en la clase de dominio Topico.
+     * @param id El ID del tópico a actualizar.
+     * @param topicoActualizacionDTO Los datos para la actualización.
+     * @return Un DTO con los datos del tópico actualizado.
+     * @throws TopicoNoEncontradoException si el tópico no se encuentra.
+     * @throws TopicoDuplicadoException si la actualización genera un tópico duplicado.
+     */
     @Transactional
-    public DatosTopicoDTO actualizarTopico(Long id, TopicoActualizacionDTO topicoActualizacionDTO) throws TopicoDuplicadoException  {
-        Topico topico = topicoRepository.findById(id)
-                .orElseThrow(() -> new TopicoNoEncontradoException("Tópico con ID " + id + " no encontrado."));
+    public DatosTopicoDTO actualizarTopico(Long id, TopicoActualizacionDTO topicoActualizacionDTO) throws TopicoDuplicadoException {
         try {
-            topico.setTitulo(topicoActualizacionDTO.titulo());
-            topico.setMensaje(topicoActualizacionDTO.mensaje());
-            topico.setStatus(topicoActualizacionDTO.status());
-            topicoRepository.save(topico);
-        }        catch (DataIntegrityViolationException e) {
+            // Orquestación: busca el tópico y le pide que se actualice a sí mismo.
+            Topico topico = topicoRepository.findById(id)
+                    .orElseThrow(() -> new TopicoNoEncontradoException("Tópico con ID " + id + " no encontrado."));
+
+            if (!topicoActualizacionDTO.titulo().isEmpty()){
+                topico.setTitulo(topicoActualizacionDTO.titulo());
+            }
+
+            if (!topicoActualizacionDTO.mensaje().isEmpty()){
+                topico.setMensaje(topicoActualizacionDTO.mensaje());
+            }
+
+            if (!topicoActualizacionDTO.status().isEmpty()){
+                topico.setStatus(topicoActualizacionDTO.status());
+            }
+
+            // Persistencia: guarda el tópico modificado
+            var topicoActualizado = topicoRepository.actualizarTopico(topico);
+
+            return new DatosTopicoDTO(topicoActualizado.get());
+        } catch (DataIntegrityViolationException e) {
             throw new TopicoDuplicadoException("El título o mensaje del tópico ya existe.");
         }
-        return new DatosTopicoDTO(topico);
     }
 
+    /**
+     * Elimina un tópico por su ID.
+     * @param id El ID del tópico a eliminar.
+     * @throws TopicoNoEncontradoException si el tópico no se encuentra.
+     */
     @Transactional
-    public void eliminarTopico(Long id){
+    public void eliminarTopico(Long id) {
+        // Orquestación y Persistencia
         Topico topico = topicoRepository.findById(id)
                 .orElseThrow(() -> new TopicoNoEncontradoException("Tópico con ID " + id + " no encontrado."));
-        topicoRepository.delete(topico);
+
+        topicoRepository.eliminarTopico(topico);
     }
 }

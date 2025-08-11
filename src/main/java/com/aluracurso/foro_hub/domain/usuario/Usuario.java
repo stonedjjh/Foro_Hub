@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.aluracurso.foro_hub.domain.perfil.Perfil;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,24 +17,25 @@ public class Usuario implements UserDetails {
     private Long id;
     private String nombre;
     private String correoElectronico;
-    private String clave;
+    private String contraseña;
     private List<Perfil> perfiles;
 
     public Usuario(Long id, String nombre, String correoElectronico, String clave) {
         this.id = id;
         this.nombre = nombre;
         this.correoElectronico = correoElectronico;
-        this.clave = clave;
+        this.contraseña = clave;
         this.perfiles = new ArrayList<>();
     }
 
     public Usuario(String nombre, String correoElectronico, String clave, List<Perfil> rol) {
         this.nombre = nombre;
         this.correoElectronico = correoElectronico;
-        this.clave = clave;
+        this.contraseña = clave;
         this.perfiles = new ArrayList<>();
         rol.forEach(r -> this.perfiles.add(r));
     }
+
 
     // Getters y setters
     public Long getId() {
@@ -61,11 +63,11 @@ public class Usuario implements UserDetails {
     }
 
     public String getClave() {
-        return clave;
+        return contraseña;
     }
 
     public void setClave(String clave) {
-        this.clave = clave;
+        this.contraseña = clave;
     }
 
     public List<Perfil> getPerfiles() {
@@ -86,7 +88,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getPassword() {
-        return clave;
+        return contraseña;
     }
 
     @Override

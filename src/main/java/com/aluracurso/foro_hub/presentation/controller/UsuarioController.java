@@ -3,8 +3,8 @@ package com.aluracurso.foro_hub.presentation.controller;
 
 import com.aluracurso.foro_hub.aplication.dto.DatosListadoUsuarioDTO;
 import com.aluracurso.foro_hub.aplication.dto.DatosActualizarUsuarioDTO;
-import com.aluracurso.foro_hub.aplication.dto.DatosPerfilDTO;
 import com.aluracurso.foro_hub.aplication.dto.DatosUsuarioDTO;
+import com.aluracurso.foro_hub.aplication.dto.DatosPerfilDTO;
 import com.aluracurso.foro_hub.aplication.dto.UsuarioDTO;
 import com.aluracurso.foro_hub.aplication.service.UsuarioService;
 import com.aluracurso.foro_hub.domain.perfil.Perfil;

@@ -21,12 +21,6 @@ public class JpaPerfilRepository implements PerfilRepository {
         this.jpaRepository = jpaRepository;
     }
 
-    @Override
-    public Optional<Perfil> encontrarPorNombre(String nombre) {
-        // Se busca la entidad de persistencia y se convierte a la entidad de dominio.
-        return jpaRepository.findByNombre(nombre)
-                .map(this::convertirAEntidadDominio);
-    }
 
     @Override
     public Optional<Perfil> encontrarPorId(Long id) {

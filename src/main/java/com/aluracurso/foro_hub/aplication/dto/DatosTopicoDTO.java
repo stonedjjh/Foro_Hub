@@ -15,7 +15,7 @@ public record DatosTopicoDTO(
 ) {
     public DatosTopicoDTO(Topico topico) {
         this(topico.getId(), topico.getTitulo(),topico.getMensaje(),topico.getFechaCreacion(),
-                topico.getStatus(),topico.getAutor(),topico.getCurso().getId());
+                topico.getStatus(),topico.getAutor(), topico.getCurso());
     }
 
 }

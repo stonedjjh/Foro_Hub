@@ -181,11 +181,14 @@ public class TopicoController {
                     @ApiResponse(responseCode = "201", description = "Tópico creado exitosamente",
                             content = @Content(schema = @Schema(implementation = DatosTopicoDTO.class))),
                     @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
+                    @ApiResponse(responseCode = "404", description = "El curso o el usuario no existen",
+                            content = @Content(mediaType = "application/json")
+                    ),
                     @ApiResponse(responseCode = "409", description = "Conflicto: El tópico ya existe (título y mensaje duplicados)")
             })
     public ResponseEntity<DatosTopicoDTO> agregarNuevoTopico(@Valid @RequestBody TopicoDTO topicoDTO) {
         Topico topico = new Topico(topicoDTO);
-        Topico topicoAlmacenado = topicoApplicationService.guardarTopico(topico, topicoDTO.curso());
+        Topico topicoAlmacenado = topicoApplicationService.guardarTopico(topico);
         return ResponseEntity.status(HttpStatus.CREATED).body(new DatosTopicoDTO(topicoAlmacenado));
     }
 }

@@ -1,76 +1,101 @@
 package com.aluracurso.foro_hub.domain.topico;
 
 import com.aluracurso.foro_hub.aplication.dto.TopicoDTO;
-import com.aluracurso.foro_hub.domain.curso.Curso;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
-@Entity
-@Table(name = "topicos")
+// Esta es la clase de dominio, no tiene anotaciones JPA.
+// Se enfoca en representar el objeto de negocio.
 public class Topico {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String titulo;
     private String mensaje;
     private LocalDateTime fechaCreacion;
     private String status;
-    private Long autor;
+    private Long autor; // Referencia simple al ID del autor
+    private Long curso; // Referencia simple al ID del curso
 
-    @ManyToOne
-    @JoinColumn(name="curso")
-    private Curso curso;
+    public Topico(Long id, String titulo, String mensaje, LocalDateTime fechaCreacion, String status, Long autorId, Long cursoId) {
+        this.id = id;
+        this.titulo = titulo;
+        this.mensaje = mensaje;
+        this.fechaCreacion = fechaCreacion;
+        this.status = status;
+        this.autor = autorId;
+        this.curso = cursoId;
+    }
+
+    public Topico() {
+    }
 
     public Topico(TopicoDTO topicoDTO){
         this.titulo = topicoDTO.titulo();
         this.mensaje = topicoDTO.mensaje();
         this.fechaCreacion = LocalDateTime.now();
         this.status = topicoDTO.status();
-
+        this.curso = topicoDTO.curso();
     }
 
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Topico topico = (Topico) o;
-        if (id!=null)
-            return Objects.equals(id, topico.id);
-        return  Objects.equals(titulo, topico.titulo) && Objects.equals(mensaje, topico.mensaje) && Objects.equals(fechaCreacion, topico.fechaCreacion) && Objects.equals(status, topico.status) && Objects.equals(autor, topico.autor) && Objects.equals(curso, topico.curso);
+    public Topico(@NotNull Long aLong) {
+        this.id = aLong;
     }
 
-    @Override
-    public int hashCode() {
-        if (id!=null)
-            return Objects.hash(id);
-        return Objects.hash(titulo, mensaje, fechaCreacion, status, autor, curso);
+    public Long getId() {
+        return id;
     }
 
-    @Override
-    public String toString() {
-        DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-        String formattedDate1 = fechaCreacion.format(formatter1);
-        return String.format(
-                """
-                Id: %s
-                Titulo: %s
-                Mensaje: %s
-                Fecha de creación: %s
-                Estatus: %s
-                Autor: %s
-                Curso: %s
-                        """,id,titulo,mensaje,formattedDate1, status,autor,curso
-        );
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
+
+    public String getMensaje() {
+        return mensaje;
+    }
+
+    public void setMensaje(String mensaje) {
+        this.mensaje = mensaje;
+    }
+
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Long getAutor() {
+        return autor;
+    }
+
+    public void setAutor(Long autorId) {
+        this.autor = autorId;
+    }
+
+    public Long getCurso() {
+        return curso;
+    }
+
+    public void setCurso(Long cursoId) {
+        this.curso = cursoId;
     }
 }
+
+

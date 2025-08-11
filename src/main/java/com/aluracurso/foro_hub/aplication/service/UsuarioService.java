@@ -11,6 +11,9 @@ import com.aluracurso.foro_hub.domain.usuario.exception.CorreoElectronicoDuplica
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -38,11 +41,11 @@ public class UsuarioService {
     private ForoNotificationService notificationService;
 
     // Inyección de las variables de configuración desde application.properties
-    @Value("${microservice.notification.url}")
+    /*@Value("${microservice.notification.url}")
     private String notificationServiceUrl;
 
     @Value("${service.to.service.secret}")
-    private String serviceToServiceSecret;
+    private String serviceToServiceSecret;*/
 
 
     private String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -70,15 +73,15 @@ public class UsuarioService {
         }
 
         String clave = generateRandomString(8, this.charSet);
-        System.out.println(clave);
-        clave = passwordEncoder.encode(clave);
+        //System.out.println(clave);
+        String claveCodificada = passwordEncoder.encode(clave);
         var roles = usuarioDTO.idRol().stream()
                 .map(r -> perfilRepository.encontrarPorId(r)
                         .orElseThrow(() -> new PerfilNoEncontradoException(r.toString())))
                 .toList();
         var usuario = new Usuario(usuarioDTO.nombre(),
                 usuarioDTO.correoElectronico(),
-                clave,
+                claveCodificada,
                 roles);
 
         Usuario usuarioPersistido = usuarioRepository.guardar(usuario); // Guardar el usuario
@@ -138,5 +141,41 @@ public class UsuarioService {
         // Usamos el método findAll de Spring Data JPA, que ya soporta paginación
         // Tu JpaUsuarioRepository debe extender JpaRepository<Usuario, Long>
         return usuarioRepository.listarTodos(pageable);
+    }
+
+    /**
+     * Obtiene el objeto completo del usuario autenticado.
+     * @return El objeto Usuario del usuario autenticado.
+     * @throws RuntimeException si el usuario no se encuentra en la base de datos.
+     */
+    public Usuario obtenerUsuarioAutenticado() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("No hay un usuario autenticado.");
+        }
+
+        // El principal puede ser un String (username) o un objeto UserDetails
+        Object principal = authentication.getPrincipal();
+        String username;
+        if (principal instanceof UserDetails) {
+            username = ((UserDetails) principal).getUsername();
+        } else {
+            username = principal.toString();
+        }
+
+        // Buscar al usuario en la base de datos por el correo electrónico (username)
+        return usuarioRepository.buscarPorCorreoElectronico(username)
+                .orElseThrow(() -> new RuntimeException("Usuario autenticado no encontrado en la base de datos."));
+    }
+
+    @Override
+    public String toString() {
+        return "UsuarioService{" +
+                "usuarioRepository=" + usuarioRepository +
+                ", perfilRepository=" + perfilRepository +
+                ", passwordEncoder=" + passwordEncoder +
+                ", notificationService=" + notificationService +
+                ", charSet='" + charSet + '\'' +
+                '}';
     }
 }

@@ -10,5 +10,9 @@ public interface RespuestaRepository {
     List<Respuesta> listarPorTopico(Long topicoId);
     void eliminar(Long respuestaId);
     Optional<Respuesta> actualizar(Long respuestaId, Respuesta respuesta);
+    Optional<Respuesta> buscarPorId(Long id);
+    Optional<Respuesta> marcarComoSolucion(Long id);
+    Boolean existeSolucionParaTopico(Long topicoId);
+
 
 }

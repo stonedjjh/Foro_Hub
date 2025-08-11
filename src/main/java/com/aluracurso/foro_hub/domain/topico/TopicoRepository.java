@@ -1,22 +1,26 @@
 package com.aluracurso.foro_hub.domain.topico;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import com.aluracurso.foro_hub.domain.curso.Curso;
+import com.aluracurso.foro_hub.domain.usuario.Usuario;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 //Importaciones necesarias para la paginación
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface TopicoRepository extends JpaRepository<Topico,Long> {
+public interface TopicoRepository {
 
     List<Topico> findTop10ByOrderByFechaCreacionDesc();
-
-
-
-    //Se define un método usando JPQL para realizar las consultas mas especificas
-    @Query("SELECT t FROM Topico t WHERE UPPER(t.titulo) LIKE %:nombre% AND FUNCTION('YEAR', t.fechaCreacion) = :anio")
     List<Topico> buscarTopicosPorTituloYAnio(String nombre, int anio);
+    Boolean existsById(Long id);
+    Optional<Topico> findById(Long id);
+    Page<Topico> buscarTodos(Pageable paginacion);
+    Optional<Topico> guardarTopico(Topico topico);
+    Optional<Topico> actualizarTopico(Topico topico);
+    void eliminarTopico(Topico topico);
 
 }
